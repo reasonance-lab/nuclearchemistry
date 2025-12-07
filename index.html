@@ -852,6 +852,61 @@
             border-color: var(--accent-cyan);
         }
 
+        /* Half-life Population Grid */
+        .halflife-population {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            padding: 0.5rem;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .halflife-nucleus {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b);
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .halflife-nucleus.decayed {
+            background: radial-gradient(circle at 30% 30%, #374151, #1f2937);
+            box-shadow: none;
+            opacity: 0.3;
+            transform: scale(0.6);
+        }
+
+        .halflife-nucleus.decaying {
+            animation: nucleusDecay 0.5s ease-out;
+        }
+
+        @keyframes nucleusDecay {
+            0% { transform: scale(1); box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
+            50% { transform: scale(1.3); box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), 0 0 40px rgba(245, 158, 11, 0.7); }
+            100% { transform: scale(0.6); opacity: 0.3; }
+        }
+
+        .halflife-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .halflife-stats .remaining {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .halflife-stats .decayed-count {
+            color: var(--text-muted);
+        }
+
         /* Scattering Level Styles */
         .scattering-controls {
             display: flex;
@@ -1177,7 +1232,17 @@
                             <!-- Half-Life Tab Content -->
                             <div id="decay-tab-halflife" class="decay-tab-content" style="display: none;">
                                 <label class="control-label">Half-Life Visualization</label>
-                                <div class="halflife-container">
+
+                                <!-- Population Grid of Nuclei -->
+                                <div class="halflife-population" id="halflife-population">
+                                    <!-- 16 nuclei will be generated dynamically -->
+                                </div>
+                                <div class="halflife-stats">
+                                    <span class="remaining">Active: <span id="halflife-remaining">16</span>/16</span>
+                                    <span class="decayed-count">Decayed: <span id="halflife-decayed">0</span></span>
+                                </div>
+
+                                <div class="halflife-container" style="margin-top: 0.75rem;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                         <span style="font-size: 0.75rem; color: var(--text-muted);">Remaining Nuclei</span>
                                         <span id="halflife-percent" style="font-family: 'Orbitron', monospace; color: var(--accent-cyan);">100%</span>
@@ -1210,7 +1275,10 @@
                                     </div>
                                 </div>
 
-                                <button class="control-btn" id="halflife-animate-btn" style="margin-top: 0.75rem;">▶ Animate Decay</button>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                                    <button class="control-btn primary" id="halflife-animate-btn" style="flex: 1;">▶ Animate Decay</button>
+                                    <button class="control-btn" id="halflife-reset-btn" style="flex: 0 0 auto;">↺ Reset</button>
+                                </div>
                             </div>
 
                             <!-- Learn Tab Content -->
@@ -2741,6 +2809,8 @@
                 const scatteringControls = document.getElementById('scattering-controls');
                 const fissionControls = document.getElementById('fission-controls');
                 const fusionControls = document.getElementById('fusion-controls');
+                const genericStartBtn = document.getElementById('start-btn');
+                const genericResetBtn = document.getElementById('reset-btn');
 
                 // Hide all first
                 elementSelector.style.display = 'none';
@@ -2753,18 +2823,35 @@
                 switch (levelNum) {
                     case 1:
                         elementSelector.style.display = 'block';
+                        // Show generic Start/Reset for Atom Builder
+                        genericStartBtn.style.display = 'block';
+                        genericResetBtn.style.display = 'block';
                         break;
                     case 2:
                         decayControls.style.display = 'block';
+                        // Hide generic buttons - Decay has its own controls
+                        genericStartBtn.style.display = 'none';
+                        genericResetBtn.style.display = 'none';
+                        // Initialize half-life population grid
+                        this.initHalfLifePopulation();
                         break;
                     case 3:
                         scatteringControls.style.display = 'block';
+                        // Hide generic buttons - Scattering has its own controls
+                        genericStartBtn.style.display = 'none';
+                        genericResetBtn.style.display = 'none';
                         break;
                     case 4:
                         fissionControls.style.display = 'block';
+                        // Hide generic buttons - Fission has its own controls
+                        genericStartBtn.style.display = 'none';
+                        genericResetBtn.style.display = 'none';
                         break;
                     case 5:
                         fusionControls.style.display = 'block';
+                        // Hide generic buttons - Fusion has its own controls
+                        genericStartBtn.style.display = 'none';
+                        genericResetBtn.style.display = 'none';
                         break;
                 }
 
@@ -2889,6 +2976,206 @@
                     neutrons: daughterNeutrons,
                     mass: daughterProtons + daughterNeutrons
                 };
+            }
+
+            // Initialize the half-life population grid with 16 nuclei
+            initHalfLifePopulation() {
+                const container = document.getElementById('halflife-population');
+                if (!container) return;
+
+                // Clear existing nuclei
+                container.innerHTML = '';
+
+                // Create 16 nuclei
+                for (let i = 0; i < 16; i++) {
+                    const nucleus = document.createElement('div');
+                    nucleus.className = 'halflife-nucleus';
+                    nucleus.dataset.index = i;
+                    nucleus.dataset.decayed = 'false';
+                    container.appendChild(nucleus);
+                }
+
+                // Reset stats
+                document.getElementById('halflife-remaining').textContent = '16';
+                document.getElementById('halflife-decayed').textContent = '0';
+                document.getElementById('halflife-percent').textContent = '100%';
+                document.getElementById('halflife-fill').style.width = '100%';
+                document.getElementById('halflife-slider').value = 0;
+                document.getElementById('halflife-count').textContent = '0';
+
+                // Store state for animation
+                SimState.halfLifeState = {
+                    totalNuclei: 16,
+                    remaining: 16,
+                    decayed: 0,
+                    nucleiElements: Array.from(container.children),
+                    animating: false
+                };
+            }
+
+            // Reset half-life visualization
+            resetHalfLife() {
+                this.initHalfLifePopulation();
+            }
+
+            // Animate half-life decay with visual nuclei decaying
+            animateHalfLifeDecay() {
+                if (!SimState.halfLifeState || SimState.halfLifeState.animating) return;
+
+                const state = SimState.halfLifeState;
+                state.animating = true;
+
+                // Reset first
+                this.initHalfLifePopulation();
+
+                const element = ElementData[SimState.selectedElement];
+                const halfLifeText = element.halfLife || '138 days';
+
+                // Update info text
+                document.getElementById('halflife-info').innerHTML = `
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                        <strong style="color: var(--accent-cyan);">t½ = ${halfLifeText}</strong> (${element.name || SimState.selectedElement})
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                        N(t) = N₀ × (½)<sup>t/t½</sup>
+                    </div>
+                `;
+
+                let currentHalfLives = 0;
+                const maxHalfLives = 5;
+                const slider = document.getElementById('halflife-slider');
+                const animationInterval = 200; // ms between decay checks
+                let decayQueue = [];
+
+                // Determine which nuclei should be decayed at each step
+                // Using probabilistic decay based on half-life formula
+                const animate = () => {
+                    if (currentHalfLives >= maxHalfLives || state.remaining === 0) {
+                        state.animating = false;
+                        document.getElementById('halflife-animate-btn').textContent = '▶ Animate Decay';
+                        return;
+                    }
+
+                    // Advance time by 0.1 half-lives
+                    currentHalfLives += 0.1;
+                    slider.value = currentHalfLives;
+                    document.getElementById('halflife-count').textContent = currentHalfLives.toFixed(1);
+
+                    // Calculate expected remaining nuclei based on formula
+                    const expectedRemaining = Math.round(state.totalNuclei * Math.pow(0.5, currentHalfLives));
+                    const percentRemaining = Math.pow(0.5, currentHalfLives) * 100;
+
+                    // Update UI
+                    document.getElementById('halflife-percent').textContent = `${percentRemaining.toFixed(1)}%`;
+                    document.getElementById('halflife-fill').style.width = `${percentRemaining}%`;
+
+                    // Decay nuclei until we match expected count
+                    while (state.remaining > expectedRemaining && state.remaining > 0) {
+                        // Find a random undecayed nucleus
+                        const activeNuclei = state.nucleiElements.filter(n => n.dataset.decayed === 'false');
+                        if (activeNuclei.length === 0) break;
+
+                        const randomIndex = Math.floor(Math.random() * activeNuclei.length);
+                        const nucleusToDecay = activeNuclei[randomIndex];
+
+                        // Animate decay
+                        nucleusToDecay.classList.add('decaying');
+                        nucleusToDecay.dataset.decayed = 'true';
+
+                        // Play sound for decay event
+                        if (audio && state.remaining % 2 === 0) {
+                            audio.playClick();
+                        }
+
+                        // After animation, mark as decayed
+                        setTimeout(() => {
+                            nucleusToDecay.classList.remove('decaying');
+                            nucleusToDecay.classList.add('decayed');
+                        }, 400);
+
+                        // Create a decay particle in the 3D scene for visual effect
+                        this.createHalfLifeDecayParticle();
+
+                        state.remaining--;
+                        state.decayed = state.totalNuclei - state.remaining;
+
+                        // Update counts
+                        document.getElementById('halflife-remaining').textContent = state.remaining;
+                        document.getElementById('halflife-decayed').textContent = state.decayed;
+                    }
+
+                    // Continue animation
+                    setTimeout(animate, animationInterval);
+                };
+
+                document.getElementById('halflife-animate-btn').textContent = '⏸ Animating...';
+                animate();
+            }
+
+            // Create a visual decay particle in the 3D scene during half-life animation
+            createHalfLifeDecayParticle() {
+                const element = ElementData[SimState.selectedElement];
+                const decayType = element.decayType || 'alpha';
+
+                // Create appropriate particle based on decay type
+                let decayParticle;
+                switch (decayType) {
+                    case 'alpha':
+                        decayParticle = ParticleFactory.createAlphaParticle(true, true);
+                        break;
+                    case 'beta':
+                    case 'beta-':
+                        decayParticle = ParticleFactory.createBetaMinus(true);
+                        break;
+                    case 'beta+':
+                        decayParticle = ParticleFactory.createBetaPlus(true);
+                        break;
+                    case 'gamma':
+                        decayParticle = ParticleFactory.createGammaRay(3);
+                        break;
+                    default:
+                        decayParticle = ParticleFactory.createAlphaParticle(true, true);
+                }
+
+                // Random position near center (simulating sample of nuclei)
+                const randomX = (Math.random() - 0.5) * 6;
+                const randomY = (Math.random() - 0.5) * 4;
+                const randomZ = (Math.random() - 0.5) * 4;
+                decayParticle.position.set(randomX, randomY, randomZ);
+
+                // Random outward velocity
+                decayParticle.userData.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 6,
+                    (Math.random() - 0.5) * 4,
+                    (Math.random() - 0.5) * 4
+                ).normalize().multiplyScalar(3 + Math.random() * 2);
+
+                decayParticle.userData.lifetime = 0;
+                decayParticle.userData.maxLifetime = 2.0; // seconds
+
+                this.sceneManager.add(decayParticle);
+
+                // Add trail if exists
+                if (decayParticle.userData.trail) {
+                    this.trails.push(decayParticle.userData.trail);
+                    this.sceneManager.add(decayParticle.userData.trail.getMesh());
+                }
+
+                // Store for cleanup
+                if (!SimState.particles.decayParticles) {
+                    SimState.particles.decayParticles = [];
+                }
+                SimState.particles.decayParticles.push(decayParticle);
+
+                // Auto-remove after lifetime
+                setTimeout(() => {
+                    this.sceneManager.scene.remove(decayParticle);
+                    if (decayParticle.userData.trail) {
+                        this.sceneManager.scene.remove(decayParticle.userData.trail.getMesh());
+                    }
+                    const idx = SimState.particles.decayParticles.indexOf(decayParticle);
+                    if (idx > -1) SimState.particles.decayParticles.splice(idx, 1);
+                }, 2000);
             }
 
             triggerDecay() {
@@ -3154,7 +3441,7 @@
             loadScattering() {
                 // Create gold foil target (represented as a gold nucleus)
                 const goldNucleus = ParticleFactory.createNucleus(79, 118, true);
-                goldNucleus.scale.setScalar(0.8);
+                goldNucleus.scale.setScalar(0.5); // Smaller for better visualization
                 goldNucleus.position.set(0, 0, 0);
                 this.sceneManager.add(goldNucleus);
 
@@ -3209,12 +3496,13 @@
                 const energy = parseFloat(document.getElementById('scattering-energy')?.value || 5);
                 const impactParam = parseFloat(document.getElementById('impact-parameter')?.value || 50);
 
-                // Create alpha particle
+                // Create alpha particle - smaller for scattering visualization
                 const alpha = ParticleFactory.createAlphaParticle(true, true);
+                alpha.scale.setScalar(0.25); // Smaller particles for clearer visualization
                 alpha.position.set(-12, impactParam * 0.05 - 2.5, 0);
 
-                // Calculate initial velocity based on energy (simplified)
-                const speed = 0.5 + energy * 0.15;
+                // Calculate initial velocity based on energy - faster for better visualization
+                const speed = 3.0 + energy * 0.8;
                 alpha.userData.velocity = new THREE.Vector3(speed, 0, 0);
                 alpha.userData.initialVelocity = alpha.userData.velocity.clone();
                 alpha.userData.impactParameter = impactParam;
@@ -3230,30 +3518,22 @@
                     this.sceneManager.add(alpha.userData.trail.getMesh());
                 }
 
-                // Add label
-                if (this.particleLabelSystem) {
-                    this.particleLabelSystem.createLabel(alpha, {
-                        name: 'Alpha Particle',
-                        symbol: 'α',
-                        type: 'alpha',
-                        mass: 4,
-                        charge: +2,
-                        energy: energy
-                    });
-                }
+                // No labels in scattering mode - they obscure the visualization
+                // Labels would block view of deflection trajectories
 
                 audio.playClick();
             }
 
             fireAlphaBeam() {
                 // Fire multiple alpha particles with different impact parameters
-                for (let i = 0; i < 10; i++) {
+                // Faster beam with more particles for better visualization
+                for (let i = 0; i < 15; i++) {
                     setTimeout(() => {
                         const impactParam = Math.random() * 100;
                         document.getElementById('impact-parameter').value = impactParam;
                         document.getElementById('impact-value').textContent = `${impactParam.toFixed(0)} fm`;
                         this.fireAlphaParticle();
-                    }, i * 200);
+                    }, i * 80); // Faster firing rate
                 }
             }
 
@@ -4311,28 +4591,63 @@
                     });
                 });
 
-                // Half-life slider
+                // Half-life slider - updates visualization and nuclei grid
                 document.getElementById('halflife-slider')?.addEventListener('input', (e) => {
                     const halfLives = parseFloat(e.target.value);
-                    const remaining = Math.pow(0.5, halfLives) * 100;
+                    const percentRemaining = Math.pow(0.5, halfLives) * 100;
                     document.getElementById('halflife-count').textContent = halfLives.toFixed(1);
-                    document.getElementById('halflife-percent').textContent = `${remaining.toFixed(1)}%`;
-                    document.getElementById('halflife-fill').style.width = `${remaining}%`;
+                    document.getElementById('halflife-percent').textContent = `${percentRemaining.toFixed(1)}%`;
+                    document.getElementById('halflife-fill').style.width = `${percentRemaining}%`;
+
+                    // Sync nuclei grid with slider position
+                    if (SimState.halfLifeState && !SimState.halfLifeState.animating) {
+                        const state = SimState.halfLifeState;
+                        const expectedRemaining = Math.round(state.totalNuclei * Math.pow(0.5, halfLives));
+
+                        // Update nuclei to match expected count
+                        const nuclei = state.nucleiElements;
+                        let currentRemaining = nuclei.filter(n => n.dataset.decayed === 'false').length;
+
+                        // Decay more nuclei if needed
+                        while (currentRemaining > expectedRemaining) {
+                            const activeNuclei = nuclei.filter(n => n.dataset.decayed === 'false');
+                            if (activeNuclei.length === 0) break;
+                            const randomNucleus = activeNuclei[Math.floor(Math.random() * activeNuclei.length)];
+                            randomNucleus.dataset.decayed = 'true';
+                            randomNucleus.classList.add('decayed');
+                            currentRemaining--;
+                        }
+
+                        // Restore nuclei if slider moved backward
+                        while (currentRemaining < expectedRemaining) {
+                            const decayedNuclei = nuclei.filter(n => n.dataset.decayed === 'true');
+                            if (decayedNuclei.length === 0) break;
+                            const randomNucleus = decayedNuclei[Math.floor(Math.random() * decayedNuclei.length)];
+                            randomNucleus.dataset.decayed = 'false';
+                            randomNucleus.classList.remove('decayed');
+                            currentRemaining++;
+                        }
+
+                        state.remaining = currentRemaining;
+                        state.decayed = state.totalNuclei - currentRemaining;
+                        document.getElementById('halflife-remaining').textContent = state.remaining;
+                        document.getElementById('halflife-decayed').textContent = state.decayed;
+                    }
                 });
 
-                // Half-life animate button
+                // Half-life animate button - triggers visual decay animation
                 document.getElementById('halflife-animate-btn')?.addEventListener('click', () => {
-                    const slider = document.getElementById('halflife-slider');
-                    let value = 0;
-                    const interval = setInterval(() => {
-                        value += 0.1;
-                        if (value > 5) {
-                            clearInterval(interval);
-                            return;
-                        }
-                        slider.value = value;
-                        slider.dispatchEvent(new Event('input'));
-                    }, 100);
+                    if (this.levelManager && this.levelManager.animateHalfLifeDecay) {
+                        this.levelManager.animateHalfLifeDecay();
+                    }
+                    audio.playClick();
+                });
+
+                // Half-life reset button
+                document.getElementById('halflife-reset-btn')?.addEventListener('click', () => {
+                    if (this.levelManager && this.levelManager.resetHalfLife) {
+                        this.levelManager.resetHalfLife();
+                    }
                     audio.playClick();
                 });
 
