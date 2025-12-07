@@ -927,21 +927,33 @@
             position: relative;
         }
 
-        .halflife-nucleus.decayed {
-            background: radial-gradient(circle at 30% 30%, #374151, #1f2937) !important;
-            box-shadow: none !important;
-            opacity: 0.15 !important;
-            transform: scale(0.35) !important;
+        /* Daughter nucleus - green, slightly smaller */
+        .halflife-nucleus.daughter {
+            background: radial-gradient(circle at 30% 30%, #22c55e, #15803d) !important;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.5) !important;
+            transform: scale(0.75) !important;
+            opacity: 1 !important;
         }
 
         .halflife-nucleus.decaying {
-            animation: nucleusDecay 0.5s ease-out forwards;
+            animation: nucleusDecay 0.6s ease-out forwards;
         }
 
         @keyframes nucleusDecay {
-            0% { transform: scale(1); box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); opacity: 1; }
-            50% { transform: scale(1.3); box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), 0 0 40px rgba(245, 158, 11, 0.7); opacity: 1; }
-            100% { transform: scale(0.35); opacity: 0.15; background: radial-gradient(circle at 30% 30%, #374151, #1f2937); }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+                background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b);
+            }
+            40% {
+                transform: scale(1.4);
+                box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), 0 0 50px rgba(245, 158, 11, 0.8);
+            }
+            100% {
+                transform: scale(0.75);
+                box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+                background: radial-gradient(circle at 30% 30%, #22c55e, #15803d);
+            }
         }
 
         .halflife-stats {
@@ -1332,13 +1344,18 @@
                                     <!-- 16 nuclei will be generated dynamically -->
                                 </div>
                                 <div class="halflife-stats">
-                                    <span class="remaining">Active: <span id="halflife-remaining">16</span>/16</span>
-                                    <span class="decayed-count">Decayed: <span id="halflife-decayed">0</span></span>
+                                    <span class="remaining" style="color: #ef4444;">
+                                        <span id="parent-symbol">Po</span>: <span id="halflife-remaining">16</span>
+                                    </span>
+                                    <span style="color: var(--text-muted);">→</span>
+                                    <span class="decayed-count" style="color: #22c55e;">
+                                        <span id="daughter-symbol">Pb</span>: <span id="halflife-decayed">0</span>
+                                    </span>
                                 </div>
 
                                 <div class="halflife-container" style="margin-top: 0.75rem;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                        <span style="font-size: 0.75rem; color: var(--text-muted);">Remaining Nuclei</span>
+                                        <span style="font-size: 0.75rem; color: var(--text-muted);">Remaining Parent Nuclei</span>
                                         <span id="halflife-percent" style="font-family: 'Orbitron', monospace; color: var(--accent-cyan);">100%</span>
                                     </div>
                                     <div class="halflife-bar">
@@ -3033,16 +3050,75 @@
                 const container = document.getElementById('halflife-population');
                 if (!container) return;
 
+                // Get element info for parent/daughter display
+                const element = ElementData[SimState.selectedElement];
+                const parentSymbol = element.symbol || SimState.selectedElement;
+
+                // Calculate daughter element
+                this.calculateDaughterNucleus(element);
+                const daughter = SimState.particles?.daughter;
+                const daughterSymbol = daughter ? this.getElementSymbol(daughter.protons) : '?';
+
+                // Update symbols in UI
+                const parentSymbolEl = document.getElementById('parent-symbol');
+                const daughterSymbolEl = document.getElementById('daughter-symbol');
+                if (parentSymbolEl) parentSymbolEl.textContent = parentSymbol;
+                if (daughterSymbolEl) daughterSymbolEl.textContent = daughterSymbol;
+
                 // Clear existing nuclei
                 container.innerHTML = '';
 
-                // Create 16 nuclei
+                // Clear existing 3D nuclei from scene
+                if (SimState.halfLifeState?.nuclei3D) {
+                    SimState.halfLifeState.nuclei3D.forEach(n => {
+                        this.sceneManager.scene.remove(n.parent);
+                        this.sceneManager.scene.remove(n.daughter);
+                    });
+                }
+
+                // Create 16 nuclei in UI
                 for (let i = 0; i < 16; i++) {
                     const nucleus = document.createElement('div');
                     nucleus.className = 'halflife-nucleus';
                     nucleus.dataset.index = i;
                     nucleus.dataset.decayed = 'false';
                     container.appendChild(nucleus);
+                }
+
+                // Create 16 nuclei in 3D scene (4x4 grid)
+                const nuclei3D = [];
+                const gridSize = 4;
+                const spacing = 3;
+                const offset = (gridSize - 1) * spacing / 2;
+
+                for (let i = 0; i < 16; i++) {
+                    const row = Math.floor(i / gridSize);
+                    const col = i % gridSize;
+                    const x = col * spacing - offset;
+                    const y = row * spacing - offset;
+
+                    // Create parent nucleus (smaller scale for grid view)
+                    const parentNucleus = ParticleFactory.createNucleus(element.protons, element.neutrons, false);
+                    parentNucleus.scale.setScalar(0.15);
+                    parentNucleus.position.set(x, y, 0);
+                    this.sceneManager.add(parentNucleus);
+
+                    // Create daughter nucleus (hidden initially, smaller)
+                    const daughterProtons = daughter?.protons || element.protons - 2;
+                    const daughterNeutrons = daughter?.neutrons || element.neutrons - 2;
+                    const daughterNucleus = ParticleFactory.createNucleus(daughterProtons, daughterNeutrons, false);
+                    daughterNucleus.scale.setScalar(0.12);
+                    daughterNucleus.position.set(x, y, 0);
+                    daughterNucleus.visible = false;
+                    this.sceneManager.add(daughterNucleus);
+
+                    nuclei3D.push({
+                        index: i,
+                        parent: parentNucleus,
+                        daughter: daughterNucleus,
+                        decayed: false,
+                        position: new THREE.Vector3(x, y, 0)
+                    });
                 }
 
                 // Reset stats
@@ -3059,8 +3135,15 @@
                     remaining: 16,
                     decayed: 0,
                     nucleiElements: Array.from(container.children),
-                    animating: false
+                    nuclei3D: nuclei3D,
+                    animating: false,
+                    parentSymbol: parentSymbol,
+                    daughterSymbol: daughterSymbol
                 };
+
+                // Adjust camera for half-life view
+                this.sceneManager.camera.position.set(0, 0, 20);
+                this.sceneManager.controls.target.set(0, 0, 0);
             }
 
             // Reset half-life visualization
@@ -3087,7 +3170,8 @@
                         <strong style="color: var(--accent-cyan);">t½ = ${halfLifeText}</strong> (${element.name || SimState.selectedElement})
                     </div>
                     <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
-                        N(t) = N₀ × (½)<sup>t/t½</sup>
+                        <span style="color: #ef4444;">${state.parentSymbol}</span> →
+                        <span style="color: #22c55e;">${state.daughterSymbol}</span> + radiation
                     </div>
                 `;
 
@@ -3120,30 +3204,63 @@
 
                     // Decay nuclei until we match expected count
                     while (state.remaining > expectedRemaining && state.remaining > 0) {
-                        // Find a random undecayed nucleus
-                        const activeNuclei = state.nucleiElements.filter(n => n.dataset.decayed === 'false');
-                        if (activeNuclei.length === 0) break;
+                        // Find a random undecayed nucleus (both UI and 3D)
+                        const activeNucleiUI = state.nucleiElements.filter(n => n.dataset.decayed === 'false');
+                        const activeNuclei3D = state.nuclei3D.filter(n => !n.decayed);
+                        if (activeNucleiUI.length === 0 || activeNuclei3D.length === 0) break;
 
-                        const randomIndex = Math.floor(Math.random() * activeNuclei.length);
-                        const nucleusToDecay = activeNuclei[randomIndex];
+                        const randomIndex = Math.floor(Math.random() * activeNucleiUI.length);
+                        const nucleusUIToDecay = activeNucleiUI[randomIndex];
+                        const nucleusIndex = parseInt(nucleusUIToDecay.dataset.index);
+                        const nucleus3D = state.nuclei3D.find(n => n.index === nucleusIndex);
 
-                        // Animate decay
-                        nucleusToDecay.classList.add('decaying');
-                        nucleusToDecay.dataset.decayed = 'true';
+                        // Animate UI decay
+                        nucleusUIToDecay.classList.add('decaying');
+                        nucleusUIToDecay.dataset.decayed = 'true';
 
                         // Play sound for decay event
                         if (audio && state.remaining % 2 === 0) {
                             audio.playClick();
                         }
 
-                        // After animation, mark as decayed
+                        // After animation, show as daughter nucleus in UI
                         setTimeout(() => {
-                            nucleusToDecay.classList.remove('decaying');
-                            nucleusToDecay.classList.add('decayed');
-                        }, 400);
+                            nucleusUIToDecay.classList.remove('decaying');
+                            nucleusUIToDecay.classList.add('daughter');
+                        }, 600);
 
-                        // Create a decay particle in the 3D scene for visual effect
-                        this.createHalfLifeDecayParticle();
+                        // Transform 3D nucleus: hide parent, show daughter
+                        if (nucleus3D) {
+                            nucleus3D.decayed = true;
+
+                            // Animate parent shrinking and daughter appearing
+                            const shrinkParent = () => {
+                                let scale = nucleus3D.parent.scale.x;
+                                if (scale > 0.01) {
+                                    nucleus3D.parent.scale.setScalar(scale * 0.85);
+                                    requestAnimationFrame(shrinkParent);
+                                } else {
+                                    nucleus3D.parent.visible = false;
+                                    nucleus3D.daughter.visible = true;
+                                    nucleus3D.daughter.scale.setScalar(0.01);
+                                    // Grow daughter
+                                    const growDaughter = () => {
+                                        let dScale = nucleus3D.daughter.scale.x;
+                                        if (dScale < 0.12) {
+                                            nucleus3D.daughter.scale.setScalar(dScale * 1.15);
+                                            requestAnimationFrame(growDaughter);
+                                        } else {
+                                            nucleus3D.daughter.scale.setScalar(0.12);
+                                        }
+                                    };
+                                    growDaughter();
+                                }
+                            };
+                            shrinkParent();
+
+                            // Create decay particle from this nucleus position
+                            this.createHalfLifeDecayParticleAt(nucleus3D.position);
+                        }
 
                         state.remaining--;
                         state.decayed = state.totalNuclei - state.remaining;
@@ -3161,8 +3278,21 @@
                 animate();
             }
 
+            // Get element symbol from proton count
+            getElementSymbol(protons) {
+                const symbols = {
+                    1: 'H', 2: 'He', 3: 'Li', 4: 'Be', 5: 'B', 6: 'C', 7: 'N', 8: 'O',
+                    9: 'F', 10: 'Ne', 11: 'Na', 12: 'Mg', 13: 'Al', 14: 'Si', 15: 'P', 16: 'S',
+                    17: 'Cl', 18: 'Ar', 19: 'K', 20: 'Ca', 26: 'Fe', 29: 'Cu', 47: 'Ag',
+                    53: 'I', 55: 'Cs', 56: 'Ba', 79: 'Au', 80: 'Hg', 81: 'Tl', 82: 'Pb',
+                    83: 'Bi', 84: 'Po', 85: 'At', 86: 'Rn', 87: 'Fr', 88: 'Ra', 89: 'Ac',
+                    90: 'Th', 91: 'Pa', 92: 'U', 93: 'Np', 94: 'Pu'
+                };
+                return symbols[protons] || `Z${protons}`;
+            }
+
             // Create a visual decay particle in the 3D scene during half-life animation
-            createHalfLifeDecayParticle() {
+            createHalfLifeDecayParticleAt(position) {
                 const element = ElementData[SimState.selectedElement];
                 const decayType = element.decayType || 'alpha';
 
@@ -3186,24 +3316,21 @@
                         decayParticle = ParticleFactory.createAlphaParticle(true, true);
                 }
 
-                // Random position near center (simulating sample of nuclei)
-                const randomX = (Math.random() - 0.5) * 6;
-                const randomY = (Math.random() - 0.5) * 4;
-                const randomZ = (Math.random() - 0.5) * 4;
-                decayParticle.position.set(randomX, randomY, randomZ);
+                // Position at the decaying nucleus
+                decayParticle.position.copy(position);
 
                 // Random outward velocity - faster for more visible travel
                 decayParticle.userData.velocity = new THREE.Vector3(
-                    (Math.random() - 0.5) * 6,
-                    (Math.random() - 0.5) * 4,
-                    (Math.random() - 0.5) * 4
-                ).normalize().multiplyScalar(8 + Math.random() * 4); // Faster: 8-12 units/s
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2,
+                    Math.random() * 2 + 1 // Bias toward camera
+                ).normalize().multiplyScalar(6 + Math.random() * 3);
 
                 decayParticle.userData.lifetime = 0;
-                decayParticle.userData.maxLifetime = 4.0; // Longer lifetime for more travel
+                decayParticle.userData.maxLifetime = 3.0;
 
                 // Scale down the particle for cleaner visualization
-                decayParticle.scale.setScalar(0.4);
+                decayParticle.scale.setScalar(0.25);
 
                 this.sceneManager.add(decayParticle);
 
@@ -3219,7 +3346,7 @@
                 }
                 SimState.particles.decayParticles.push(decayParticle);
 
-                // Auto-remove after lifetime - fade out effect
+                // Auto-remove after lifetime
                 setTimeout(() => {
                     this.sceneManager.scene.remove(decayParticle);
                     if (decayParticle.userData.trail) {
@@ -3227,7 +3354,7 @@
                     }
                     const idx = SimState.particles.decayParticles.indexOf(decayParticle);
                     if (idx > -1) SimState.particles.decayParticles.splice(idx, 1);
-                }, 4000); // Match the longer lifetime
+                }, 3000);
             }
 
             triggerDecay() {
