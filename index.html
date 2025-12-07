@@ -206,6 +206,40 @@
             border-color: var(--accent-red);
         }
 
+        .quiz-btn {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            opacity: 0.5;
+        }
+
+        .quiz-btn.unlocked {
+            opacity: 1;
+            cursor: pointer;
+            color: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .quiz-btn.unlocked:hover {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .quiz-btn .quiz-icon {
+            font-size: 0.9rem;
+        }
+
         /* Main Content Area */
         #main-content {
             display: grid;
@@ -1073,6 +1107,10 @@
             </nav>
 
             <div class="header-controls">
+                <button class="quiz-btn" id="quiz-btn" title="Complete all levels to unlock quiz">
+                    <span class="quiz-icon">📝</span>
+                    <span>QUIZ</span>
+                </button>
                 <button class="sound-toggle" id="sound-toggle" title="Toggle Sound">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 5L6 9H2v6h4l5 4V5z" />
@@ -1084,10 +1122,10 @@
 
         <!-- Main Content -->
         <main id="main-content">
-            <!-- Left Panel (Information & Learn) -->
+            <!-- Left Panel (Guide) -->
             <aside id="left-panel">
-                <div class="panel-section">
-                    <h2 class="section-title">Information</h2>
+                <div class="panel-section" style="flex: 1; max-height: none;">
+                    <h2 class="section-title">Guide</h2>
                     <div class="info-content" id="info-content">
                         <h3>Welcome to Nuclear Lab</h3>
                         <p>Explore the fascinating world of nuclear chemistry through interactive 3D simulations.</p>
@@ -1095,41 +1133,40 @@
                             <strong>Level 1: Atom Builder</strong><br>
                             Learn to construct atoms by placing protons and neutrons in the nucleus.
                         </div>
-                        <p>Complete each level to unlock the next. Master atomic structure before exploring radioactive
-                            decay, scattering, fission, and fusion.</p>
+                        <p style="margin-bottom: 1rem;">Complete each level to unlock the next. Master atomic structure before exploring radioactive decay, scattering, fission, and fusion.</p>
                     </div>
-                </div>
 
-                <div class="panel-section">
-                    <h2 class="section-title">Learn</h2>
-                    <div id="learn-content">
-                        <div class="decay-info-card" style="margin-bottom: 0.75rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <span class="decay-type-badge alpha">α ALPHA</span>
-                                <span style="font-size: 0.7rem; color: var(--text-muted);">Heavy nuclei</span>
+                    <!-- Reference Cards -->
+                    <div id="learn-content" style="margin-top: 0.5rem;">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Reference</div>
+
+                        <div class="decay-info-card" style="margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <span class="decay-type-badge alpha" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;">α ALPHA</span>
+                                <span style="font-size: 0.65rem; color: var(--text-muted);">Heavy nuclei</span>
                             </div>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
-                                Emits He-4 nucleus (2p + 2n). Mass ↓4, Atomic# ↓2.
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                                Emits He-4 (2p+2n). Mass↓4, Z↓2
                             </p>
                         </div>
 
-                        <div class="decay-info-card" style="margin-bottom: 0.75rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <span class="decay-type-badge beta">β BETA</span>
-                                <span style="font-size: 0.7rem; color: var(--text-muted);">N/Z imbalance</span>
+                        <div class="decay-info-card" style="margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <span class="decay-type-badge beta" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;">β BETA</span>
+                                <span style="font-size: 0.65rem; color: var(--text-muted);">N/Z imbalance</span>
                             </div>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
-                                β⁻: n→p + e⁻ | β⁺: p→n + e⁺
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                                β⁻: n→p+e⁻ | β⁺: p→n+e⁺
                             </p>
                         </div>
 
-                        <div class="decay-info-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <span class="decay-type-badge gamma">γ GAMMA</span>
-                                <span style="font-size: 0.7rem; color: var(--text-muted);">Energy release</span>
+                        <div class="decay-info-card" style="margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <span class="decay-type-badge gamma" style="font-size: 0.65rem; padding: 0.15rem 0.4rem;">γ GAMMA</span>
+                                <span style="font-size: 0.65rem; color: var(--text-muted);">Energy</span>
                             </div>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
-                                High-energy photon. No mass/charge change.
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                                High-energy photon. No mass change.
                             </p>
                         </div>
                     </div>
@@ -1240,7 +1277,6 @@
                             <div class="decay-tabs">
                                 <button class="decay-tab active" data-decay-tab="simulate">Simulate</button>
                                 <button class="decay-tab" data-decay-tab="halflife">Half-Life</button>
-                                <button class="decay-tab" data-decay-tab="learn">Learn</button>
                             </div>
 
                             <!-- Simulate Tab Content -->
@@ -1339,41 +1375,6 @@
                                 </div>
                             </div>
 
-                            <!-- Learn Tab Content -->
-                            <div id="decay-tab-learn" class="decay-tab-content" style="display: none;">
-                                <div class="decay-info-card">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                        <span class="decay-type-badge alpha">α ALPHA</span>
-                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Heavy nuclei</span>
-                                    </div>
-                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
-                                        Emits He-4 nucleus (2p + 2n). Mass ↓4, Atomic# ↓2.
-                                        <strong style="color: #f59e0b;">Most ionizing</strong>, least penetrating.
-                                    </p>
-                                </div>
-
-                                <div class="decay-info-card">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                        <span class="decay-type-badge beta">β BETA</span>
-                                        <span style="font-size: 0.7rem; color: var(--text-muted);">N/Z imbalance</span>
-                                    </div>
-                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
-                                        <strong>β⁻:</strong> n→p + e⁻ (Atomic# ↑1)<br>
-                                        <strong>β⁺:</strong> p→n + e⁺ (Atomic# ↓1)
-                                    </p>
-                                </div>
-
-                                <div class="decay-info-card">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                        <span class="decay-type-badge gamma">γ GAMMA</span>
-                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Energy release</span>
-                                    </div>
-                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
-                                        High-energy photon. No mass/charge change.
-                                        <strong style="color: #8b5cf6;">Most penetrating</strong>, least ionizing.
-                                    </p>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Scattering Controls (Level 3) -->
@@ -1489,15 +1490,6 @@
 
                         <button class="control-btn primary" id="start-btn">Start Simulation</button>
                         <button class="control-btn" id="reset-btn" style="margin-top: 0.5rem;">Reset</button>
-                    </div>
-                </div>
-
-                <div class="panel-section">
-                    <h2 class="section-title">Quiz Progress</h2>
-                    <div id="quiz-content">
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">
-                            Complete the simulation objectives to unlock quiz questions.
-                        </p>
                     </div>
                 </div>
             </aside>
@@ -3078,13 +3070,13 @@
 
             // Animate half-life decay with visual nuclei decaying
             animateHalfLifeDecay() {
-                if (!SimState.halfLifeState || SimState.halfLifeState.animating) return;
-
-                const state = SimState.halfLifeState;
-                state.animating = true;
-
-                // Reset first
+                // Reset first to create fresh nuclei
                 this.initHalfLifePopulation();
+
+                // Get the NEW state after reset (important - don't capture before reset!)
+                const state = SimState.halfLifeState;
+                if (!state) return;
+                state.animating = true;
 
                 const element = ElementData[SimState.selectedElement];
                 const halfLifeText = element.halfLife || '138 days';
@@ -3103,7 +3095,6 @@
                 const maxHalfLives = 5;
                 const slider = document.getElementById('halflife-slider');
                 const animationInterval = 200; // ms between decay checks
-                let decayQueue = [];
 
                 // Determine which nuclei should be decayed at each step
                 // Using probabilistic decay based on half-life formula
