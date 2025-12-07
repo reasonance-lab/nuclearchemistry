@@ -3085,10 +3085,18 @@
                     container.appendChild(nucleus);
                 }
 
-                // Create 16 nuclei in 3D scene (4x4 grid)
+                // Clear the main decay nucleus if it exists (from Simulate tab)
+                if (SimState.particles?.nucleus) {
+                    this.sceneManager.scene.remove(SimState.particles.nucleus);
+                }
+                if (SimState.particles?.notation) {
+                    this.sceneManager.scene.remove(SimState.particles.notation);
+                }
+
+                // Create 16 nuclei in 3D scene (4x4 grid) - LARGER and more visible
                 const nuclei3D = [];
                 const gridSize = 4;
-                const spacing = 3;
+                const spacing = 4.5; // Larger spacing for visibility
                 const offset = (gridSize - 1) * spacing / 2;
 
                 for (let i = 0; i < 16; i++) {
@@ -3097,17 +3105,17 @@
                     const x = col * spacing - offset;
                     const y = row * spacing - offset;
 
-                    // Create parent nucleus (smaller scale for grid view)
+                    // Create parent nucleus - LARGER scale for clear visibility
                     const parentNucleus = ParticleFactory.createNucleus(element.protons, element.neutrons, false);
-                    parentNucleus.scale.setScalar(0.15);
+                    parentNucleus.scale.setScalar(0.35); // Much larger
                     parentNucleus.position.set(x, y, 0);
                     this.sceneManager.add(parentNucleus);
 
-                    // Create daughter nucleus (hidden initially, smaller)
+                    // Create daughter nucleus (hidden initially, slightly smaller)
                     const daughterProtons = daughter?.protons || element.protons - 2;
                     const daughterNeutrons = daughter?.neutrons || element.neutrons - 2;
                     const daughterNucleus = ParticleFactory.createNucleus(daughterProtons, daughterNeutrons, false);
-                    daughterNucleus.scale.setScalar(0.12);
+                    daughterNucleus.scale.setScalar(0.28); // Slightly smaller than parent
                     daughterNucleus.position.set(x, y, 0);
                     daughterNucleus.visible = false;
                     this.sceneManager.add(daughterNucleus);
@@ -3141,9 +3149,10 @@
                     daughterSymbol: daughterSymbol
                 };
 
-                // Adjust camera for half-life view
-                this.sceneManager.camera.position.set(0, 0, 20);
+                // Adjust camera for clear half-life view of the grid
+                this.sceneManager.camera.position.set(0, 0, 25);
                 this.sceneManager.controls.target.set(0, 0, 0);
+                this.sceneManager.controls.update();
             }
 
             // Reset half-life visualization
@@ -3234,23 +3243,24 @@
                             nucleus3D.decayed = true;
 
                             // Animate parent shrinking and daughter appearing
+                            const targetDaughterScale = 0.28;
                             const shrinkParent = () => {
                                 let scale = nucleus3D.parent.scale.x;
-                                if (scale > 0.01) {
-                                    nucleus3D.parent.scale.setScalar(scale * 0.85);
+                                if (scale > 0.02) {
+                                    nucleus3D.parent.scale.setScalar(scale * 0.88);
                                     requestAnimationFrame(shrinkParent);
                                 } else {
                                     nucleus3D.parent.visible = false;
                                     nucleus3D.daughter.visible = true;
-                                    nucleus3D.daughter.scale.setScalar(0.01);
-                                    // Grow daughter
+                                    nucleus3D.daughter.scale.setScalar(0.02);
+                                    // Grow daughter nucleus
                                     const growDaughter = () => {
                                         let dScale = nucleus3D.daughter.scale.x;
-                                        if (dScale < 0.12) {
-                                            nucleus3D.daughter.scale.setScalar(dScale * 1.15);
+                                        if (dScale < targetDaughterScale) {
+                                            nucleus3D.daughter.scale.setScalar(dScale * 1.12);
                                             requestAnimationFrame(growDaughter);
                                         } else {
-                                            nucleus3D.daughter.scale.setScalar(0.12);
+                                            nucleus3D.daughter.scale.setScalar(targetDaughterScale);
                                         }
                                     };
                                     growDaughter();
@@ -3319,18 +3329,18 @@
                 // Position at the decaying nucleus
                 decayParticle.position.copy(position);
 
-                // Random outward velocity - faster for more visible travel
+                // Random outward velocity - visible travel away from nucleus
                 decayParticle.userData.velocity = new THREE.Vector3(
-                    (Math.random() - 0.5) * 2,
-                    (Math.random() - 0.5) * 2,
-                    Math.random() * 2 + 1 // Bias toward camera
-                ).normalize().multiplyScalar(6 + Math.random() * 3);
+                    (Math.random() - 0.5) * 3,
+                    (Math.random() - 0.5) * 3,
+                    Math.random() * 3 + 2 // Bias toward camera for visibility
+                ).normalize().multiplyScalar(8 + Math.random() * 4);
 
                 decayParticle.userData.lifetime = 0;
-                decayParticle.userData.maxLifetime = 3.0;
+                decayParticle.userData.maxLifetime = 2.5;
 
-                // Scale down the particle for cleaner visualization
-                decayParticle.scale.setScalar(0.25);
+                // Scale particle for visibility
+                decayParticle.scale.setScalar(0.35);
 
                 this.sceneManager.add(decayParticle);
 
@@ -3354,7 +3364,7 @@
                     }
                     const idx = SimState.particles.decayParticles.indexOf(decayParticle);
                     if (idx > -1) SimState.particles.decayParticles.splice(idx, 1);
-                }, 3000);
+                }, 2500);
             }
 
             triggerDecay() {
