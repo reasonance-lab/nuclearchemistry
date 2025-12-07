@@ -3441,7 +3441,7 @@
             loadScattering() {
                 // Create gold foil target (represented as a gold nucleus)
                 const goldNucleus = ParticleFactory.createNucleus(79, 118, true);
-                goldNucleus.scale.setScalar(0.8);
+                goldNucleus.scale.setScalar(0.5); // Smaller for better visualization
                 goldNucleus.position.set(0, 0, 0);
                 this.sceneManager.add(goldNucleus);
 
@@ -3496,12 +3496,13 @@
                 const energy = parseFloat(document.getElementById('scattering-energy')?.value || 5);
                 const impactParam = parseFloat(document.getElementById('impact-parameter')?.value || 50);
 
-                // Create alpha particle
+                // Create alpha particle - smaller for scattering visualization
                 const alpha = ParticleFactory.createAlphaParticle(true, true);
+                alpha.scale.setScalar(0.25); // Smaller particles for clearer visualization
                 alpha.position.set(-12, impactParam * 0.05 - 2.5, 0);
 
-                // Calculate initial velocity based on energy (simplified)
-                const speed = 0.5 + energy * 0.15;
+                // Calculate initial velocity based on energy - faster for better visualization
+                const speed = 3.0 + energy * 0.8;
                 alpha.userData.velocity = new THREE.Vector3(speed, 0, 0);
                 alpha.userData.initialVelocity = alpha.userData.velocity.clone();
                 alpha.userData.impactParameter = impactParam;
@@ -3517,30 +3518,22 @@
                     this.sceneManager.add(alpha.userData.trail.getMesh());
                 }
 
-                // Add label
-                if (this.particleLabelSystem) {
-                    this.particleLabelSystem.createLabel(alpha, {
-                        name: 'Alpha Particle',
-                        symbol: 'α',
-                        type: 'alpha',
-                        mass: 4,
-                        charge: +2,
-                        energy: energy
-                    });
-                }
+                // No labels in scattering mode - they obscure the visualization
+                // Labels would block view of deflection trajectories
 
                 audio.playClick();
             }
 
             fireAlphaBeam() {
                 // Fire multiple alpha particles with different impact parameters
-                for (let i = 0; i < 10; i++) {
+                // Faster beam with more particles for better visualization
+                for (let i = 0; i < 15; i++) {
                     setTimeout(() => {
                         const impactParam = Math.random() * 100;
                         document.getElementById('impact-parameter').value = impactParam;
                         document.getElementById('impact-value').textContent = `${impactParam.toFixed(0)} fm`;
                         this.fireAlphaParticle();
-                    }, i * 200);
+                    }, i * 80); // Faster firing rate
                 }
             }
 
