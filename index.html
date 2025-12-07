@@ -209,9 +209,29 @@
         /* Main Content Area */
         #main-content {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: 280px 1fr 320px;
             position: relative;
             overflow: hidden;
+        }
+
+        /* Left Panel (Information) */
+        #left-panel {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #left-panel .panel-section {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        #left-panel .panel-section:last-child {
+            border-bottom: none;
+            flex: 1;
         }
 
         /* 3D Viewport */
@@ -636,7 +656,7 @@
             z-index: 100;
             min-width: 120px;
             backdrop-filter: blur(8px);
-            transform: translate(-50%, -100%) translateY(-10px);
+            transform: translate(-50%, -100%) translateY(-60px); /* Moved higher above particle */
             transition: opacity 0.2s ease;
         }
 
@@ -874,20 +894,20 @@
         }
 
         .halflife-nucleus.decayed {
-            background: radial-gradient(circle at 30% 30%, #374151, #1f2937);
-            box-shadow: none;
-            opacity: 0.3;
-            transform: scale(0.6);
+            background: radial-gradient(circle at 30% 30%, #374151, #1f2937) !important;
+            box-shadow: none !important;
+            opacity: 0.15 !important;
+            transform: scale(0.35) !important;
         }
 
         .halflife-nucleus.decaying {
-            animation: nucleusDecay 0.5s ease-out;
+            animation: nucleusDecay 0.5s ease-out forwards;
         }
 
         @keyframes nucleusDecay {
-            0% { transform: scale(1); box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
-            50% { transform: scale(1.3); box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), 0 0 40px rgba(245, 158, 11, 0.7); }
-            100% { transform: scale(0.6); opacity: 0.3; }
+            0% { transform: scale(1); box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); opacity: 1; }
+            50% { transform: scale(1.3); box-shadow: 0 0 20px rgba(239, 68, 68, 0.9), 0 0 40px rgba(245, 158, 11, 0.7); opacity: 1; }
+            100% { transform: scale(0.35); opacity: 0.15; background: radial-gradient(circle at 30% 30%, #374151, #1f2937); }
         }
 
         .halflife-stats {
@@ -1064,6 +1084,58 @@
 
         <!-- Main Content -->
         <main id="main-content">
+            <!-- Left Panel (Information & Learn) -->
+            <aside id="left-panel">
+                <div class="panel-section">
+                    <h2 class="section-title">Information</h2>
+                    <div class="info-content" id="info-content">
+                        <h3>Welcome to Nuclear Lab</h3>
+                        <p>Explore the fascinating world of nuclear chemistry through interactive 3D simulations.</p>
+                        <div class="info-highlight">
+                            <strong>Level 1: Atom Builder</strong><br>
+                            Learn to construct atoms by placing protons and neutrons in the nucleus.
+                        </div>
+                        <p>Complete each level to unlock the next. Master atomic structure before exploring radioactive
+                            decay, scattering, fission, and fusion.</p>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h2 class="section-title">Learn</h2>
+                    <div id="learn-content">
+                        <div class="decay-info-card" style="margin-bottom: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="decay-type-badge alpha">α ALPHA</span>
+                                <span style="font-size: 0.7rem; color: var(--text-muted);">Heavy nuclei</span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                                Emits He-4 nucleus (2p + 2n). Mass ↓4, Atomic# ↓2.
+                            </p>
+                        </div>
+
+                        <div class="decay-info-card" style="margin-bottom: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="decay-type-badge beta">β BETA</span>
+                                <span style="font-size: 0.7rem; color: var(--text-muted);">N/Z imbalance</span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                                β⁻: n→p + e⁻ | β⁺: p→n + e⁺
+                            </p>
+                        </div>
+
+                        <div class="decay-info-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="decay-type-badge gamma">γ GAMMA</span>
+                                <span style="font-size: 0.7rem; color: var(--text-muted);">Energy release</span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                                High-energy photon. No mass/charge change.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
             <!-- 3D Viewport -->
             <div id="viewport">
                 <div id="canvas-container"></div>
@@ -1082,22 +1154,8 @@
                 <div id="particle-labels-container"></div>
             </div>
 
-            <!-- Side Panel -->
+            <!-- Right Side Panel (Controls) -->
             <aside id="side-panel">
-                <div class="panel-section">
-                    <h2 class="section-title">Information</h2>
-                    <div class="info-content" id="info-content">
-                        <h3>Welcome to Nuclear Lab</h3>
-                        <p>Explore the fascinating world of nuclear chemistry through interactive 3D simulations.</p>
-                        <div class="info-highlight">
-                            <strong>Level 1: Atom Builder</strong><br>
-                            Learn to construct atoms by placing protons and neutrons in the nucleus.
-                        </div>
-                        <p>Complete each level to unlock the next. Master atomic structure before exploring radioactive
-                            decay, scattering, fission, and fusion.</p>
-                    </div>
-                </div>
-
                 <div class="panel-section">
                     <h2 class="section-title">Controls</h2>
                     <div id="controls-content">
@@ -1275,9 +1333,9 @@
                                     </div>
                                 </div>
 
-                                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem; align-items: stretch;">
                                     <button class="control-btn primary" id="halflife-animate-btn" style="flex: 1;">▶ Animate Decay</button>
-                                    <button class="control-btn" id="halflife-reset-btn" style="flex: 0 0 auto;">↺ Reset</button>
+                                    <button class="control-btn" id="halflife-reset-btn" style="flex: 0 0 44px; padding: 0.5rem;" title="Reset">↺</button>
                                 </div>
                             </div>
 
@@ -3143,15 +3201,18 @@
                 const randomZ = (Math.random() - 0.5) * 4;
                 decayParticle.position.set(randomX, randomY, randomZ);
 
-                // Random outward velocity
+                // Random outward velocity - faster for more visible travel
                 decayParticle.userData.velocity = new THREE.Vector3(
                     (Math.random() - 0.5) * 6,
                     (Math.random() - 0.5) * 4,
                     (Math.random() - 0.5) * 4
-                ).normalize().multiplyScalar(3 + Math.random() * 2);
+                ).normalize().multiplyScalar(8 + Math.random() * 4); // Faster: 8-12 units/s
 
                 decayParticle.userData.lifetime = 0;
-                decayParticle.userData.maxLifetime = 2.0; // seconds
+                decayParticle.userData.maxLifetime = 4.0; // Longer lifetime for more travel
+
+                // Scale down the particle for cleaner visualization
+                decayParticle.scale.setScalar(0.4);
 
                 this.sceneManager.add(decayParticle);
 
@@ -3167,7 +3228,7 @@
                 }
                 SimState.particles.decayParticles.push(decayParticle);
 
-                // Auto-remove after lifetime
+                // Auto-remove after lifetime - fade out effect
                 setTimeout(() => {
                     this.sceneManager.scene.remove(decayParticle);
                     if (decayParticle.userData.trail) {
@@ -3175,7 +3236,7 @@
                     }
                     const idx = SimState.particles.decayParticles.indexOf(decayParticle);
                     if (idx > -1) SimState.particles.decayParticles.splice(idx, 1);
-                }, 2000);
+                }, 4000); // Match the longer lifetime
             }
 
             triggerDecay() {
