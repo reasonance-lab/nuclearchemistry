@@ -622,6 +622,314 @@
             border-radius: 3px;
         }
 
+        /* Particle Label Overlay */
+        .particle-label {
+            position: absolute;
+            pointer-events: none;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            min-width: 120px;
+            backdrop-filter: blur(8px);
+            transform: translate(-50%, -100%) translateY(-10px);
+            transition: opacity 0.2s ease;
+        }
+
+        .particle-label::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid var(--border-color);
+        }
+
+        .particle-label .label-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .particle-label .label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .particle-label .label-value {
+            color: var(--accent-cyan);
+            font-weight: 500;
+        }
+
+        /* Decay Info Panel Styles */
+        .decay-info-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .decay-info-card.active {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .decay-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .decay-type-badge.alpha {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .decay-type-badge.beta {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .decay-type-badge.gamma {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .decay-equation {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .decay-equation .parent {
+            color: var(--accent-cyan);
+        }
+
+        .decay-equation .arrow {
+            color: var(--text-muted);
+            margin: 0 0.5rem;
+        }
+
+        .decay-equation .daughter {
+            color: var(--accent-green);
+        }
+
+        .decay-equation .particle {
+            color: #f59e0b;
+        }
+
+        /* Half-life visualization */
+        .halflife-container {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .halflife-bar {
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            margin: 0.5rem 0;
+        }
+
+        .halflife-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .halflife-fill span {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--bg-primary);
+        }
+
+        .halflife-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* Emitted particles tracker */
+        .emitted-tracker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .emitted-particle {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .emitted-particle .particle-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .emitted-particle.alpha .particle-icon {
+            background: radial-gradient(circle at 30% 30%, #fbbf24, #f59e0b);
+        }
+
+        .emitted-particle.beta .particle-icon {
+            background: radial-gradient(circle at 30% 30%, #60a5fa, #3b82f6);
+        }
+
+        .emitted-particle.gamma .particle-icon {
+            background: radial-gradient(circle at 30% 30%, #a78bfa, #8b5cf6);
+            border-radius: 0;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+
+        /* Tabs for decay sub-sections */
+        .decay-tabs {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .decay-tab {
+            flex: 1;
+            padding: 0.4rem 0.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', monospace;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .decay-tab:hover {
+            border-color: var(--accent-cyan);
+            color: var(--text-secondary);
+        }
+
+        .decay-tab.active {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Scattering Level Styles */
+        .scattering-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .angle-display {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .angle-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+        }
+
+        /* Fission/Fusion energy meter */
+        .energy-meter {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .energy-bar {
+            height: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .energy-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            color: #22c55e;
+            text-align: center;
+        }
+
+        /* Chain reaction counter */
+        .chain-counter {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            text-align: center;
+        }
+
+        .chain-stat {
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .chain-stat-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+        }
+
+        .chain-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             #main-content {
@@ -675,17 +983,17 @@
                 <button class="level-tab active" data-level="1">
                     <span>01</span> ATOM BUILDER
                 </button>
-                <button class="level-tab locked" data-level="2">
-                    <span>02</span> DECAY<span class="lock-icon">🔒</span>
+                <button class="level-tab" data-level="2">
+                    <span>02</span> DECAY
                 </button>
-                <button class="level-tab locked" data-level="3">
-                    <span>03</span> SCATTERING<span class="lock-icon">🔒</span>
+                <button class="level-tab" data-level="3">
+                    <span>03</span> SCATTERING
                 </button>
-                <button class="level-tab locked" data-level="4">
-                    <span>04</span> FISSION<span class="lock-icon">🔒</span>
+                <button class="level-tab" data-level="4">
+                    <span>04</span> FISSION
                 </button>
-                <button class="level-tab locked" data-level="5">
-                    <span>05</span> FUSION<span class="lock-icon">🔒</span>
+                <button class="level-tab" data-level="5">
+                    <span>05</span> FUSION
                 </button>
             </nav>
 
@@ -714,6 +1022,9 @@
                 <div class="viewport-overlay viewport-hint">
                     Drag to rotate • Scroll to zoom • Right-click to pan
                 </div>
+
+                <!-- Particle Labels Container -->
+                <div id="particle-labels-container"></div>
             </div>
 
             <!-- Side Panel -->
@@ -810,20 +1121,243 @@
                             </div>
                         </div>
 
-                        <!-- Decay Controls (Level 2) -->
+                        <!-- Decay Controls (Level 2) - Enhanced -->
                         <div id="decay-controls" class="control-group" style="display: none;">
-                            <label class="control-label">Decay Controls</label>
-                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Decay Type Tabs -->
+                            <div class="decay-tabs">
+                                <button class="decay-tab active" data-decay-tab="simulate">Simulate</button>
+                                <button class="decay-tab" data-decay-tab="halflife">Half-Life</button>
+                                <button class="decay-tab" data-decay-tab="learn">Learn</button>
+                            </div>
+
+                            <!-- Simulate Tab Content -->
+                            <div id="decay-tab-simulate" class="decay-tab-content">
+                                <label class="control-label">Select Radioactive Isotope</label>
                                 <select id="decay-element-select" class="control-select"
-                                    style="padding: 0.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: 'Rajdhani', sans-serif;">
+                                    style="padding: 0.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: 'Rajdhani', sans-serif; width: 100%; margin-bottom: 0.75rem;">
                                     <option value="Po">Polonium-210 (α decay)</option>
                                     <option value="Ra">Radium-226 (α decay)</option>
                                     <option value="U">Uranium-235 (α decay)</option>
                                     <option value="U238">Uranium-238 (α decay)</option>
                                     <option value="Pu">Plutonium-239 (α decay)</option>
+                                    <option value="C14">Carbon-14 (β⁻ decay)</option>
+                                    <option value="T">Tritium (β⁻ decay)</option>
                                 </select>
-                                <button class="control-btn primary" id="decay-trigger-btn">⚛ Trigger Decay</button>
-                                <button class="control-btn" id="decay-reset-btn">↺ Reset Decay</button>
+
+                                <!-- Decay Equation Display -->
+                                <div id="decay-equation-display" class="decay-equation">
+                                    <span class="parent"><sup>210</sup><sub>84</sub>Po</span>
+                                    <span class="arrow">→</span>
+                                    <span class="daughter"><sup>206</sup><sub>82</sub>Pb</span>
+                                    <span class="arrow">+</span>
+                                    <span class="particle"><sup>4</sup><sub>2</sub>α</span>
+                                </div>
+
+                                <!-- Current Decay Type Badge -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <span id="decay-type-indicator" class="decay-type-badge alpha">α ALPHA</span>
+                                    <span id="decay-energy-display" style="font-size: 0.75rem; color: var(--text-secondary);">Energy: <span style="color: #22c55e;">5.3 MeV</span></span>
+                                </div>
+
+                                <!-- Emitted Particles Tracker -->
+                                <div style="margin-bottom: 0.75rem;">
+                                    <label class="control-label">Emitted Particles</label>
+                                    <div id="emitted-particles-tracker" class="emitted-tracker">
+                                        <span style="color: var(--text-muted); font-size: 0.75rem;">No particles emitted yet</span>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <button class="control-btn primary" id="decay-trigger-btn">⚛ Trigger Decay</button>
+                                    <button class="control-btn" id="decay-reset-btn">↺ Reset Decay</button>
+                                </div>
+                            </div>
+
+                            <!-- Half-Life Tab Content -->
+                            <div id="decay-tab-halflife" class="decay-tab-content" style="display: none;">
+                                <label class="control-label">Half-Life Visualization</label>
+                                <div class="halflife-container">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.75rem; color: var(--text-muted);">Remaining Nuclei</span>
+                                        <span id="halflife-percent" style="font-family: 'Orbitron', monospace; color: var(--accent-cyan);">100%</span>
+                                    </div>
+                                    <div class="halflife-bar">
+                                        <div id="halflife-fill" class="halflife-fill" style="width: 100%;">
+                                            <span>N₀</span>
+                                        </div>
+                                    </div>
+                                    <div class="halflife-labels">
+                                        <span>0</span>
+                                        <span>t½</span>
+                                        <span>2t½</span>
+                                        <span>3t½</span>
+                                        <span>4t½</span>
+                                    </div>
+                                </div>
+
+                                <div class="control-group" style="margin-top: 0.75rem;">
+                                    <label class="control-label">Half-lives elapsed: <span id="halflife-count">0</span></label>
+                                    <input type="range" class="control-slider" id="halflife-slider" min="0" max="5" step="0.1" value="0">
+                                </div>
+
+                                <div id="halflife-info" style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 4px; margin-top: 0.5rem;">
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                                        <strong style="color: var(--accent-cyan);">t½ = 138 days</strong> (Polonium-210)
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                        N(t) = N₀ × (½)<sup>t/t½</sup>
+                                    </div>
+                                </div>
+
+                                <button class="control-btn" id="halflife-animate-btn" style="margin-top: 0.75rem;">▶ Animate Decay</button>
+                            </div>
+
+                            <!-- Learn Tab Content -->
+                            <div id="decay-tab-learn" class="decay-tab-content" style="display: none;">
+                                <div class="decay-info-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span class="decay-type-badge alpha">α ALPHA</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Heavy nuclei</span>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                                        Emits He-4 nucleus (2p + 2n). Mass ↓4, Atomic# ↓2.
+                                        <strong style="color: #f59e0b;">Most ionizing</strong>, least penetrating.
+                                    </p>
+                                </div>
+
+                                <div class="decay-info-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span class="decay-type-badge beta">β BETA</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-muted);">N/Z imbalance</span>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                                        <strong>β⁻:</strong> n→p + e⁻ (Atomic# ↑1)<br>
+                                        <strong>β⁺:</strong> p→n + e⁺ (Atomic# ↓1)
+                                    </p>
+                                </div>
+
+                                <div class="decay-info-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span class="decay-type-badge gamma">γ GAMMA</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Energy release</span>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                                        High-energy photon. No mass/charge change.
+                                        <strong style="color: #8b5cf6;">Most penetrating</strong>, least ionizing.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scattering Controls (Level 3) -->
+                        <div id="scattering-controls" class="control-group" style="display: none;">
+                            <label class="control-label">Rutherford Scattering</label>
+                            <div class="scattering-controls">
+                                <div class="control-group">
+                                    <label class="control-label">Particle Energy (MeV)</label>
+                                    <input type="range" class="control-slider" id="scattering-energy" min="1" max="10" step="0.5" value="5">
+                                    <span id="scattering-energy-value" style="font-size: 0.75rem; color: var(--accent-cyan);">5 MeV</span>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label">Impact Parameter (fm)</label>
+                                    <input type="range" class="control-slider" id="impact-parameter" min="0" max="100" step="5" value="50">
+                                    <span id="impact-value" style="font-size: 0.75rem; color: var(--accent-cyan);">50 fm</span>
+                                </div>
+                                <div class="angle-display">
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Deflection Angle</div>
+                                    <div id="deflection-angle" class="angle-value">0°</div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="control-btn primary" id="fire-alpha-btn" style="flex: 1;">Fire α Particle</button>
+                                    <button class="control-btn" id="fire-beam-btn" style="flex: 1;">Fire Beam</button>
+                                </div>
+                                <button class="control-btn" id="scattering-reset-btn">↺ Reset</button>
+                            </div>
+                        </div>
+
+                        <!-- Fission Controls (Level 4) -->
+                        <div id="fission-controls" class="control-group" style="display: none;">
+                            <label class="control-label">Nuclear Fission</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <select id="fission-element-select" class="control-select"
+                                    style="padding: 0.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: 'Rajdhani', sans-serif;">
+                                    <option value="U235">Uranium-235</option>
+                                    <option value="Pu239">Plutonium-239</option>
+                                </select>
+
+                                <div class="energy-meter">
+                                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.25rem;">Energy Released</div>
+                                    <div id="fission-energy" class="energy-value">0 MeV</div>
+                                    <div class="energy-bar">
+                                        <div id="fission-energy-fill" class="energy-fill"></div>
+                                    </div>
+                                </div>
+
+                                <div class="chain-counter">
+                                    <div class="chain-stat">
+                                        <div id="fission-count" class="chain-stat-value">0</div>
+                                        <div class="chain-stat-label">Fissions</div>
+                                    </div>
+                                    <div class="chain-stat">
+                                        <div id="neutron-count" class="chain-stat-value">1</div>
+                                        <div class="chain-stat-label">Neutrons</div>
+                                    </div>
+                                    <div class="chain-stat">
+                                        <div id="generation-count" class="chain-stat-value">0</div>
+                                        <div class="chain-stat-label">Generation</div>
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <label class="control-label">Chain Reaction Mode</label>
+                                    <div style="display: flex; gap: 0.25rem;">
+                                        <button class="control-btn chain-mode-btn active" data-mode="single" style="flex:1; padding: 0.4rem;">Single</button>
+                                        <button class="control-btn chain-mode-btn" data-mode="controlled" style="flex:1; padding: 0.4rem;">Controlled</button>
+                                        <button class="control-btn chain-mode-btn" data-mode="chain" style="flex:1; padding: 0.4rem;">Chain</button>
+                                    </div>
+                                </div>
+
+                                <button class="control-btn primary" id="fission-trigger-btn">⚛ Fire Neutron</button>
+                                <button class="control-btn" id="fission-reset-btn">↺ Reset</button>
+                            </div>
+                        </div>
+
+                        <!-- Fusion Controls (Level 5) -->
+                        <div id="fusion-controls" class="control-group" style="display: none;">
+                            <label class="control-label">Nuclear Fusion</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <select id="fusion-reaction-select" class="control-select"
+                                    style="padding: 0.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: 'Rajdhani', sans-serif;">
+                                    <option value="DT">D + T → He + n (17.6 MeV)</option>
+                                    <option value="DD">D + D → He-3 + n (3.3 MeV)</option>
+                                    <option value="pp">p + p → D + e⁺ (Solar)</option>
+                                </select>
+
+                                <div class="control-group">
+                                    <label class="control-label">Plasma Temperature</label>
+                                    <input type="range" class="control-slider" id="plasma-temp" min="1" max="200" step="5" value="100">
+                                    <span id="plasma-temp-value" style="font-size: 0.75rem; color: var(--accent-orange);">100 million K</span>
+                                </div>
+
+                                <div class="energy-meter">
+                                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.25rem;">Coulomb Barrier</div>
+                                    <div class="energy-bar">
+                                        <div id="barrier-fill" class="energy-fill" style="background: linear-gradient(90deg, #22c55e, #ef4444); width: 60%;"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted);">
+                                        <span>Particle Energy</span>
+                                        <span id="barrier-status" style="color: #ef4444;">Below barrier</span>
+                                    </div>
+                                </div>
+
+                                <div class="energy-meter">
+                                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.25rem;">Energy Output</div>
+                                    <div id="fusion-energy" class="energy-value">0 MeV</div>
+                                </div>
+
+                                <button class="control-btn primary" id="fusion-trigger-btn">⚛ Initiate Fusion</button>
+                                <button class="control-btn" id="fusion-reset-btn">↺ Reset</button>
                             </div>
                         </div>
 
@@ -890,7 +1424,7 @@
         // Global State
         const SimState = {
             currentLevel: 1,
-            unlockedLevels: [1, 2],
+            unlockedLevels: [1, 2, 3, 4, 5], // All levels unlocked for educational access
             soundEnabled: true,
             simulationSpeed: 1,
             selectedElement: 'H',
@@ -909,20 +1443,41 @@
         const ElementData = {
             H: { name: 'Hydrogen', symbol: 'H', protons: 1, neutrons: 0, color: 0x00f0ff, stable: true },
             D: { name: 'Deuterium', symbol: 'D', protons: 1, neutrons: 1, color: 0x00d4ff, stable: true },
-            T: { name: 'Tritium', symbol: 'T', protons: 1, neutrons: 2, color: 0x00b8ff, stable: false, halfLife: '12.3 years' },
+            T: { name: 'Tritium', symbol: 'T', protons: 1, neutrons: 2, color: 0x00b8ff, stable: false, halfLife: '12.3 years', decayType: 'beta-', decayEnergy: 0.0186 },
             He: { name: 'Helium', symbol: 'He', protons: 2, neutrons: 2, color: 0xf59e0b, stable: true },
+            He3: { name: 'Helium-3', symbol: 'He', protons: 2, neutrons: 1, color: 0xfbbf24, stable: true },
             Li: { name: 'Lithium', symbol: 'Li', protons: 3, neutrons: 4, color: 0x8b5cf6, stable: true },
             C: { name: 'Carbon-12', symbol: 'C', protons: 6, neutrons: 6, color: 0x64748b, stable: true },
-            C14: { name: 'Carbon-14', symbol: 'C', protons: 6, neutrons: 8, color: 0x475569, stable: false, halfLife: '5,730 years' },
+            C14: { name: 'Carbon-14', symbol: 'C', protons: 6, neutrons: 8, color: 0x475569, stable: false, halfLife: '5,730 years', decayType: 'beta-', decayEnergy: 0.156 },
             N: { name: 'Nitrogen', symbol: 'N', protons: 7, neutrons: 7, color: 0x3b82f6, stable: true },
             O: { name: 'Oxygen', symbol: 'O', protons: 8, neutrons: 8, color: 0xef4444, stable: true },
             Fe: { name: 'Iron', symbol: 'Fe', protons: 26, neutrons: 30, color: 0xb45309, stable: true },
             Au: { name: 'Gold', symbol: 'Au', protons: 79, neutrons: 118, color: 0xfbbf24, stable: true },
-            Po: { name: 'Polonium-210', symbol: 'Po', protons: 84, neutrons: 126, color: 0x7c3aed, stable: false, halfLife: '138 days', decayType: 'alpha' },
-            Ra: { name: 'Radium-226', symbol: 'Ra', protons: 88, neutrons: 138, color: 0x10b981, stable: false, halfLife: '1,600 years', decayType: 'alpha' },
-            U: { name: 'Uranium-235', symbol: 'U', protons: 92, neutrons: 143, color: 0x22c55e, stable: false, halfLife: '704M years', decayType: 'alpha', fissile: true },
-            U238: { name: 'Uranium-238', symbol: 'U', protons: 92, neutrons: 146, color: 0x16a34a, stable: false, halfLife: '4.5B years', decayType: 'alpha' },
-            Pu: { name: 'Plutonium-239', symbol: 'Pu', protons: 94, neutrons: 145, color: 0xdc2626, stable: false, halfLife: '24,100 years', decayType: 'alpha', fissile: true }
+            Po: { name: 'Polonium-210', symbol: 'Po', protons: 84, neutrons: 126, color: 0x7c3aed, stable: false, halfLife: '138 days', decayType: 'alpha', decayEnergy: 5.3 },
+            Ra: { name: 'Radium-226', symbol: 'Ra', protons: 88, neutrons: 138, color: 0x10b981, stable: false, halfLife: '1,600 years', decayType: 'alpha', decayEnergy: 4.87 },
+            Rn: { name: 'Radon-222', symbol: 'Rn', protons: 86, neutrons: 136, color: 0x06b6d4, stable: false, halfLife: '3.8 days', decayType: 'alpha' },
+            Pb: { name: 'Lead-206', symbol: 'Pb', protons: 82, neutrons: 124, color: 0x6b7280, stable: true },
+            Th: { name: 'Thorium-231', symbol: 'Th', protons: 90, neutrons: 141, color: 0x0ea5e9, stable: false, halfLife: '25.5 hours', decayType: 'beta-' },
+            U: { name: 'Uranium-235', symbol: 'U', protons: 92, neutrons: 143, color: 0x22c55e, stable: false, halfLife: '704M years', decayType: 'alpha', fissile: true, decayEnergy: 4.68 },
+            U238: { name: 'Uranium-238', symbol: 'U', protons: 92, neutrons: 146, color: 0x16a34a, stable: false, halfLife: '4.5B years', decayType: 'alpha', decayEnergy: 4.27 },
+            Pu: { name: 'Plutonium-239', symbol: 'Pu', protons: 94, neutrons: 145, color: 0xdc2626, stable: false, halfLife: '24,100 years', decayType: 'alpha', fissile: true, decayEnergy: 5.24 },
+            Pu239: { name: 'Plutonium-239', symbol: 'Pu', protons: 94, neutrons: 145, color: 0xdc2626, stable: false, halfLife: '24,100 years', decayType: 'alpha', fissile: true, decayEnergy: 5.24 },
+            U235: { name: 'Uranium-235', symbol: 'U', protons: 92, neutrons: 143, color: 0x22c55e, stable: false, halfLife: '704M years', decayType: 'alpha', fissile: true, decayEnergy: 4.68 },
+            Ba: { name: 'Barium-141', symbol: 'Ba', protons: 56, neutrons: 85, color: 0xa855f7, stable: false },
+            Kr: { name: 'Krypton-92', symbol: 'Kr', protons: 36, neutrons: 56, color: 0x38bdf8, stable: false },
+            Sr: { name: 'Strontium-94', symbol: 'Sr', protons: 38, neutrons: 56, color: 0xfb7185, stable: false },
+            Xe: { name: 'Xenon-140', symbol: 'Xe', protons: 54, neutrons: 86, color: 0x818cf8, stable: false }
+        };
+
+        // Decay energy data for display
+        const DecayEnergyData = {
+            'Po': { energy: 5.3, unit: 'MeV', type: 'alpha' },
+            'Ra': { energy: 4.87, unit: 'MeV', type: 'alpha' },
+            'U': { energy: 4.68, unit: 'MeV', type: 'alpha' },
+            'U238': { energy: 4.27, unit: 'MeV', type: 'alpha' },
+            'Pu': { energy: 5.24, unit: 'MeV', type: 'alpha' },
+            'C14': { energy: 0.156, unit: 'MeV', type: 'beta-' },
+            'T': { energy: 0.0186, unit: 'MeV', type: 'beta-' }
         };
 
         // ============================================
@@ -1454,6 +2009,129 @@
                 core.userData.isPulsingCore = true;
                 core.userData.baseScale = 1;
                 return core;
+            }
+        }
+
+        // ============================================
+        // PARTICLE LABEL SYSTEM
+        // ============================================
+        class ParticleLabelSystem {
+            constructor(camera, renderer) {
+                this.camera = camera;
+                this.renderer = renderer;
+                this.container = document.getElementById('particle-labels-container');
+                this.labels = new Map();
+                this.enabled = true;
+            }
+
+            createLabel(particle, data) {
+                if (!this.enabled) return null;
+
+                const label = document.createElement('div');
+                label.className = 'particle-label';
+                label.innerHTML = this.generateLabelHTML(data);
+                label.style.opacity = '0';
+                this.container.appendChild(label);
+
+                const labelData = {
+                    element: label,
+                    particle: particle,
+                    data: data,
+                    visible: false
+                };
+
+                this.labels.set(particle.uuid, labelData);
+
+                // Fade in
+                setTimeout(() => {
+                    label.style.opacity = '1';
+                    labelData.visible = true;
+                }, 50);
+
+                return labelData;
+            }
+
+            generateLabelHTML(data) {
+                let colorClass = '';
+                let titleColor = 'var(--accent-cyan)';
+
+                switch (data.type) {
+                    case 'alpha':
+                        titleColor = '#f59e0b';
+                        break;
+                    case 'beta-':
+                    case 'beta+':
+                        titleColor = '#3b82f6';
+                        break;
+                    case 'gamma':
+                        titleColor = '#8b5cf6';
+                        break;
+                    case 'neutron':
+                        titleColor = '#94a3b8';
+                        break;
+                }
+
+                return `
+                    <div class="label-title" style="color: ${titleColor};">${data.name}</div>
+                    ${data.symbol ? `<div class="label-row"><span>Symbol:</span><span class="label-value">${data.symbol}</span></div>` : ''}
+                    ${data.mass !== undefined ? `<div class="label-row"><span>Mass:</span><span class="label-value">${data.mass} amu</span></div>` : ''}
+                    ${data.charge !== undefined ? `<div class="label-row"><span>Charge:</span><span class="label-value">${data.charge > 0 ? '+' : ''}${data.charge}</span></div>` : ''}
+                    ${data.energy ? `<div class="label-row"><span>Energy:</span><span class="label-value" style="color: #22c55e;">${data.energy} MeV</span></div>` : ''}
+                `;
+            }
+
+            updatePositions() {
+                if (!this.enabled) return;
+
+                const rect = this.renderer.domElement.getBoundingClientRect();
+
+                this.labels.forEach((labelData, uuid) => {
+                    if (!labelData.visible || !labelData.particle) return;
+
+                    const position = labelData.particle.position.clone();
+                    position.project(this.camera);
+
+                    const x = (position.x * 0.5 + 0.5) * rect.width;
+                    const y = (-position.y * 0.5 + 0.5) * rect.height;
+
+                    // Check if particle is in front of camera
+                    if (position.z < 1) {
+                        labelData.element.style.left = `${x}px`;
+                        labelData.element.style.top = `${y}px`;
+                        labelData.element.style.display = 'block';
+                    } else {
+                        labelData.element.style.display = 'none';
+                    }
+                });
+            }
+
+            removeLabel(particleUuid) {
+                const labelData = this.labels.get(particleUuid);
+                if (labelData) {
+                    labelData.element.style.opacity = '0';
+                    setTimeout(() => {
+                        if (labelData.element.parentNode) {
+                            labelData.element.parentNode.removeChild(labelData.element);
+                        }
+                    }, 200);
+                    this.labels.delete(particleUuid);
+                }
+            }
+
+            clearAll() {
+                this.labels.forEach((labelData, uuid) => {
+                    if (labelData.element.parentNode) {
+                        labelData.element.parentNode.removeChild(labelData.element);
+                    }
+                });
+                this.labels.clear();
+            }
+
+            setEnabled(enabled) {
+                this.enabled = enabled;
+                if (!enabled) {
+                    this.clearAll();
+                }
             }
         }
 
@@ -1996,13 +2674,23 @@
                 this.levelModules = {};
                 this.atomicNotation = new AtomicNotation();
                 this.particleInteraction = null;
+                this.particleLabelSystem = null;
                 this.trails = [];
+                this.scatteringParticles = [];
+                this.fissionState = null;
+                this.fusionState = null;
             }
 
             init() {
                 // Initialize particle interaction system
                 this.particleInteraction = new ParticleInteraction(
                     this.sceneManager.scene,
+                    this.sceneManager.camera,
+                    this.sceneManager.renderer
+                );
+
+                // Initialize particle label system
+                this.particleLabelSystem = new ParticleLabelSystem(
                     this.sceneManager.camera,
                     this.sceneManager.renderer
                 );
@@ -2019,6 +2707,14 @@
                 // Clear scene
                 this.sceneManager.clearDynamic();
                 this.trails = [];
+                this.scatteringParticles = [];
+                this.fissionState = null;
+                this.fusionState = null;
+
+                // Clear particle labels
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.clearAll();
+                }
 
                 // Load level-specific content
                 switch (levelNum) {
@@ -2042,16 +2738,34 @@
                 // Show/hide level-specific controls
                 const elementSelector = document.getElementById('element-selector-group');
                 const decayControls = document.getElementById('decay-controls');
+                const scatteringControls = document.getElementById('scattering-controls');
+                const fissionControls = document.getElementById('fission-controls');
+                const fusionControls = document.getElementById('fusion-controls');
 
-                if (levelNum === 1) {
-                    elementSelector.style.display = 'block';
-                    decayControls.style.display = 'none';
-                } else if (levelNum === 2) {
-                    elementSelector.style.display = 'none';
-                    decayControls.style.display = 'block';
-                } else {
-                    elementSelector.style.display = 'none';
-                    decayControls.style.display = 'none';
+                // Hide all first
+                elementSelector.style.display = 'none';
+                decayControls.style.display = 'none';
+                scatteringControls.style.display = 'none';
+                fissionControls.style.display = 'none';
+                fusionControls.style.display = 'none';
+
+                // Show level-specific controls
+                switch (levelNum) {
+                    case 1:
+                        elementSelector.style.display = 'block';
+                        break;
+                    case 2:
+                        decayControls.style.display = 'block';
+                        break;
+                    case 3:
+                        scatteringControls.style.display = 'block';
+                        break;
+                    case 4:
+                        fissionControls.style.display = 'block';
+                        break;
+                    case 5:
+                        fusionControls.style.display = 'block';
+                        break;
                 }
 
                 this.updateUI();
@@ -2061,6 +2775,9 @@
                 this.sceneManager.clearDynamic();
                 this.trails.forEach(trail => trail.dispose());
                 this.trails = [];
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.clearAll();
+                }
             }
 
             loadAtomBuilder() {
@@ -2096,7 +2813,7 @@
 
             loadDecay() {
                 // Default to a radioactive element for decay demonstration
-                const radioactiveElements = ['Po', 'Ra', 'U', 'U238', 'Pu'];
+                const radioactiveElements = ['Po', 'Ra', 'U', 'U238', 'Pu', 'C14', 'T'];
                 if (!radioactiveElements.includes(SimState.selectedElement)) {
                     SimState.selectedElement = 'Po'; // Default to Polonium-210
                 }
@@ -2129,6 +2846,13 @@
 
                 this.updateInfoPanel('decay');
                 this.updateDecayStats(element);
+
+                // Update decay equation display in sidebar
+                setTimeout(() => {
+                    if (SimState.particles.daughter) {
+                        this.updateDecayEquationDisplay(element, SimState.particles.daughter);
+                    }
+                }, 100);
             }
 
             calculateDaughterNucleus(parentElement) {
@@ -2173,6 +2897,7 @@
                 const element = ElementData[SimState.selectedElement];
                 const decayType = element.decayType || 'alpha';
                 const daughter = SimState.particles.daughter;
+                const decayEnergy = element.decayEnergy || DecayEnergyData[SimState.selectedElement]?.energy || 5.0;
 
                 audio.playReaction();
                 SimState.particles.hasDecayed = true;
@@ -2180,28 +2905,69 @@
                 // Create and animate decay particle
                 let decayParticle;
                 let particleColor;
+                let particleLabelData;
 
                 switch (decayType) {
                     case 'alpha':
                         decayParticle = ParticleFactory.createAlphaParticle(true, true);
                         particleColor = 0xf59e0b;
+                        particleLabelData = {
+                            name: 'Alpha Particle',
+                            symbol: 'α (⁴₂He)',
+                            type: 'alpha',
+                            mass: 4,
+                            charge: +2,
+                            energy: decayEnergy
+                        };
                         break;
                     case 'beta':
                     case 'beta-':
                         decayParticle = ParticleFactory.createBetaMinus(true);
-                        particleColor = 0x00f0ff;
+                        particleColor = 0x3b82f6;
+                        particleLabelData = {
+                            name: 'Beta Particle (β⁻)',
+                            symbol: 'e⁻',
+                            type: 'beta-',
+                            mass: 0.000545,
+                            charge: -1,
+                            energy: decayEnergy
+                        };
                         break;
                     case 'beta+':
                         decayParticle = ParticleFactory.createBetaPlus(true);
-                        particleColor = 0xef4444;
+                        particleColor = 0xf59e0b;
+                        particleLabelData = {
+                            name: 'Positron (β⁺)',
+                            symbol: 'e⁺',
+                            type: 'beta+',
+                            mass: 0.000545,
+                            charge: +1,
+                            energy: decayEnergy
+                        };
                         break;
                     case 'gamma':
                         decayParticle = ParticleFactory.createGammaRay(4);
                         particleColor = 0x8b5cf6;
+                        particleLabelData = {
+                            name: 'Gamma Ray',
+                            symbol: 'γ',
+                            type: 'gamma',
+                            mass: 0,
+                            charge: 0,
+                            energy: decayEnergy
+                        };
                         break;
                     default:
                         decayParticle = ParticleFactory.createAlphaParticle(true, true);
                         particleColor = 0xf59e0b;
+                        particleLabelData = {
+                            name: 'Alpha Particle',
+                            symbol: 'α',
+                            type: 'alpha',
+                            mass: 4,
+                            charge: +2,
+                            energy: decayEnergy
+                        };
                 }
 
                 decayParticle.position.copy(SimState.particles.nucleus.position);
@@ -2212,6 +2978,14 @@
                 );
                 this.sceneManager.add(decayParticle);
                 SimState.particles.decayParticles.push(decayParticle);
+
+                // Add particle label
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.createLabel(decayParticle, particleLabelData);
+                }
+
+                // Update emitted particles tracker in UI
+                this.updateEmittedParticlesUI(decayType);
 
                 // Add trail if exists
                 if (decayParticle.userData.trail) {
@@ -2240,6 +3014,94 @@
 
                     audio.playSuccess();
                 }, 500);
+            }
+
+            updateEmittedParticlesUI(decayType) {
+                const tracker = document.getElementById('emitted-particles-tracker');
+                if (!tracker) return;
+
+                let particleHTML = '';
+                switch (decayType) {
+                    case 'alpha':
+                        particleHTML = `<div class="emitted-particle alpha"><span class="particle-icon"></span><span>α particle (⁴₂He)</span></div>`;
+                        break;
+                    case 'beta':
+                    case 'beta-':
+                        particleHTML = `<div class="emitted-particle beta"><span class="particle-icon"></span><span>β⁻ electron</span></div>
+                                       <div class="emitted-particle" style="border-color: rgba(168, 85, 247, 0.4);"><span style="color: #a855f7;">ν̄</span><span>antineutrino</span></div>`;
+                        break;
+                    case 'beta+':
+                        particleHTML = `<div class="emitted-particle beta"><span class="particle-icon" style="background: radial-gradient(circle at 30% 30%, #fbbf24, #f59e0b);"></span><span>β⁺ positron</span></div>
+                                       <div class="emitted-particle" style="border-color: rgba(168, 85, 247, 0.4);"><span style="color: #a855f7;">ν</span><span>neutrino</span></div>`;
+                        break;
+                    case 'gamma':
+                        particleHTML = `<div class="emitted-particle gamma"><span class="particle-icon"></span><span>γ photon</span></div>`;
+                        break;
+                }
+                tracker.innerHTML = particleHTML;
+            }
+
+            updateDecayEquationDisplay(element, daughter) {
+                const display = document.getElementById('decay-equation-display');
+                if (!display) return;
+
+                const parentMass = element.protons + element.neutrons;
+                const decayType = element.decayType || 'alpha';
+                const daughterSymbol = this.getElementSymbol(daughter.protons);
+
+                let particleNotation = '';
+                switch (decayType) {
+                    case 'alpha':
+                        particleNotation = '<sup>4</sup><sub>2</sub>α';
+                        break;
+                    case 'beta':
+                    case 'beta-':
+                        particleNotation = '<sup>0</sup><sub>-1</sub>β⁻';
+                        break;
+                    case 'beta+':
+                        particleNotation = '<sup>0</sup><sub>+1</sub>β⁺';
+                        break;
+                    case 'gamma':
+                        particleNotation = 'γ';
+                        break;
+                }
+
+                display.innerHTML = `
+                    <span class="parent"><sup>${parentMass}</sup><sub>${element.protons}</sub>${element.symbol}</span>
+                    <span class="arrow">→</span>
+                    <span class="daughter"><sup>${daughter.mass}</sup><sub>${daughter.protons}</sub>${daughterSymbol}</span>
+                    <span class="arrow">+</span>
+                    <span class="particle">${particleNotation}</span>
+                `;
+
+                // Update type indicator
+                const indicator = document.getElementById('decay-type-indicator');
+                if (indicator) {
+                    indicator.className = `decay-type-badge ${decayType.replace('+', 'plus').replace('-', '')}`;
+                    indicator.textContent = decayType === 'alpha' ? 'α ALPHA' :
+                                          decayType === 'beta-' ? 'β⁻ BETA' :
+                                          decayType === 'beta+' ? 'β⁺ BETA' : 'γ GAMMA';
+                }
+
+                // Update energy display
+                const energyDisplay = document.getElementById('decay-energy-display');
+                const energyData = DecayEnergyData[SimState.selectedElement];
+                if (energyDisplay && energyData) {
+                    energyDisplay.innerHTML = `Energy: <span style="color: #22c55e;">${energyData.energy} ${energyData.unit}</span>`;
+                }
+
+                // Update halflife info
+                const halflifeInfo = document.getElementById('halflife-info');
+                if (halflifeInfo) {
+                    halflifeInfo.innerHTML = `
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                            <strong style="color: var(--accent-cyan);">t½ = ${element.halfLife}</strong> (${element.name})
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            N(t) = N₀ × (½)<sup>t/t½</sup>
+                        </div>
+                    `;
+                }
             }
 
             getElementSymbol(protons) {
@@ -2290,18 +3152,674 @@
             }
 
             loadScattering() {
-                // Placeholder - will be implemented in Step 5
+                // Create gold foil target (represented as a gold nucleus)
+                const goldNucleus = ParticleFactory.createNucleus(79, 118, true);
+                goldNucleus.scale.setScalar(0.8);
+                goldNucleus.position.set(0, 0, 0);
+                this.sceneManager.add(goldNucleus);
+
+                // Create target indicator rings
+                const ringGeom = new THREE.RingGeometry(1.5, 1.6, 32);
+                const ringMat = new THREE.MeshBasicMaterial({
+                    color: 0xfbbf24,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeom, ringMat);
+                ring.rotation.x = Math.PI / 2;
+                ring.position.set(0, 0, 0);
+                ring.userData.dynamic = true;
+                this.sceneManager.add(ring);
+
+                // Create gold foil plane (visual representation)
+                const foilGeom = new THREE.PlaneGeometry(10, 10);
+                const foilMat = new THREE.MeshBasicMaterial({
+                    color: 0xfbbf24,
+                    transparent: true,
+                    opacity: 0.05,
+                    side: THREE.DoubleSide
+                });
+                const foil = new THREE.Mesh(foilGeom, foilMat);
+                foil.rotation.y = Math.PI / 2;
+                foil.position.set(0, 0, 0);
+                foil.userData.dynamic = true;
+                this.sceneManager.add(foil);
+
+                // Notation for gold
+                const notation = this.atomicNotation.createSprite('Au', 197, 79);
+                notation.position.set(0, 4, 0);
+                this.sceneManager.add(notation);
+
+                SimState.particles = {
+                    goldNucleus,
+                    ring,
+                    foil,
+                    alphaParticles: [],
+                    deflectionAngles: []
+                };
+
+                // Adjust camera for better scattering view
+                this.sceneManager.camera.position.set(15, 5, 15);
+
                 this.updateInfoPanel('scattering');
             }
 
+            fireAlphaParticle() {
+                const energy = parseFloat(document.getElementById('scattering-energy')?.value || 5);
+                const impactParam = parseFloat(document.getElementById('impact-parameter')?.value || 50);
+
+                // Create alpha particle
+                const alpha = ParticleFactory.createAlphaParticle(true, true);
+                alpha.position.set(-12, impactParam * 0.05 - 2.5, 0);
+
+                // Calculate initial velocity based on energy (simplified)
+                const speed = 0.5 + energy * 0.15;
+                alpha.userData.velocity = new THREE.Vector3(speed, 0, 0);
+                alpha.userData.initialVelocity = alpha.userData.velocity.clone();
+                alpha.userData.impactParameter = impactParam;
+                alpha.userData.energy = energy;
+
+                this.sceneManager.add(alpha);
+                SimState.particles.alphaParticles.push(alpha);
+                this.scatteringParticles.push(alpha);
+
+                // Add trail
+                if (alpha.userData.trail) {
+                    this.trails.push(alpha.userData.trail);
+                    this.sceneManager.add(alpha.userData.trail.getMesh());
+                }
+
+                // Add label
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.createLabel(alpha, {
+                        name: 'Alpha Particle',
+                        symbol: 'α',
+                        type: 'alpha',
+                        mass: 4,
+                        charge: +2,
+                        energy: energy
+                    });
+                }
+
+                audio.playClick();
+            }
+
+            fireAlphaBeam() {
+                // Fire multiple alpha particles with different impact parameters
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        const impactParam = Math.random() * 100;
+                        document.getElementById('impact-parameter').value = impactParam;
+                        document.getElementById('impact-value').textContent = `${impactParam.toFixed(0)} fm`;
+                        this.fireAlphaParticle();
+                    }, i * 200);
+                }
+            }
+
+            updateScatteringPhysics(delta) {
+                if (!this.scatteringParticles || this.scatteringParticles.length === 0) return;
+
+                const goldPos = new THREE.Vector3(0, 0, 0);
+                const goldCharge = 79; // Gold atomic number
+
+                this.scatteringParticles.forEach((particle, index) => {
+                    if (!particle.userData.velocity) return;
+
+                    // Calculate Coulomb force (simplified)
+                    const direction = particle.position.clone().sub(goldPos);
+                    const distance = direction.length();
+
+                    if (distance > 0.5) {
+                        // Coulomb repulsion: F = k * q1 * q2 / r^2
+                        const forceMagnitude = (2 * goldCharge * 0.001) / (distance * distance);
+                        const force = direction.normalize().multiplyScalar(forceMagnitude);
+
+                        // Update velocity
+                        particle.userData.velocity.add(force.multiplyScalar(delta * SimState.simulationSpeed * 2));
+                    }
+
+                    // Update position
+                    particle.position.add(
+                        particle.userData.velocity.clone().multiplyScalar(delta * SimState.simulationSpeed * 5)
+                    );
+
+                    // Update trail
+                    if (particle.userData.trail) {
+                        particle.userData.trail.addPoint(particle.position);
+                    }
+
+                    // Calculate and display deflection angle when particle passes gold
+                    if (particle.position.x > 2 && !particle.userData.deflectionCalculated) {
+                        particle.userData.deflectionCalculated = true;
+                        const initialV = particle.userData.initialVelocity;
+                        const currentV = particle.userData.velocity;
+
+                        // Calculate angle between initial and final velocity
+                        const dot = initialV.dot(currentV) / (initialV.length() * currentV.length());
+                        const angle = Math.acos(Math.max(-1, Math.min(1, dot))) * (180 / Math.PI);
+
+                        document.getElementById('deflection-angle').textContent = `${angle.toFixed(1)}°`;
+                        SimState.particles.deflectionAngles.push(angle);
+
+                        audio.playCollision(angle / 180);
+                    }
+
+                    // Remove particles that go too far
+                    if (particle.position.length() > 20) {
+                        this.sceneManager.remove(particle);
+                        if (this.particleLabelSystem) {
+                            this.particleLabelSystem.removeLabel(particle.uuid);
+                        }
+                        this.scatteringParticles.splice(index, 1);
+                    }
+                });
+            }
+
             loadFission() {
-                // Placeholder - will be implemented in Step 6
+                // Create U-235 or Pu-239 nucleus
+                const selectedElement = document.getElementById('fission-element-select')?.value || 'U235';
+                const element = ElementData[selectedElement] || ElementData.U235;
+
+                const nucleus = ParticleFactory.createNucleus(element.protons, element.neutrons, true);
+                nucleus.position.set(0, 0, 0);
+                this.sceneManager.add(nucleus);
+
+                // Create notation
+                const notation = this.atomicNotation.createSprite(element.symbol, element.protons + element.neutrons, element.protons);
+                notation.position.set(0, 5, 0);
+                this.sceneManager.add(notation);
+
+                // Initialize fission state
+                this.fissionState = {
+                    nucleus,
+                    notation,
+                    hasFissioned: false,
+                    chainMode: 'single',
+                    fissionCount: 0,
+                    neutronCount: 1,
+                    generation: 0,
+                    totalEnergy: 0,
+                    activeNeutrons: [],
+                    fragments: []
+                };
+
+                SimState.particles = this.fissionState;
+
+                // Reset UI
+                document.getElementById('fission-count').textContent = '0';
+                document.getElementById('neutron-count').textContent = '1';
+                document.getElementById('generation-count').textContent = '0';
+                document.getElementById('fission-energy').textContent = '0 MeV';
+                document.getElementById('fission-energy-fill').style.width = '0%';
+
                 this.updateInfoPanel('fission');
             }
 
+            triggerFission() {
+                if (!this.fissionState || this.fissionState.hasFissioned) {
+                    // In chain mode, allow multiple fissions
+                    if (this.fissionState.chainMode === 'single') return;
+                }
+
+                // Create incident neutron
+                const neutron = ParticleFactory.createNeutronProjectile();
+                neutron.position.set(-10, 0, 0);
+                neutron.userData.velocity = new THREE.Vector3(8, 0, 0);
+                neutron.userData.isIncident = true;
+                this.sceneManager.add(neutron);
+
+                // Add trail
+                if (neutron.userData.trail) {
+                    this.trails.push(neutron.userData.trail);
+                    this.sceneManager.add(neutron.userData.trail.getMesh());
+                }
+
+                // Add label
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.createLabel(neutron, {
+                        name: 'Neutron',
+                        symbol: 'n',
+                        type: 'neutron',
+                        mass: 1,
+                        charge: 0
+                    });
+                }
+
+                this.fissionState.activeNeutrons.push(neutron);
+                audio.playClick();
+            }
+
+            performFission(targetNucleus, position) {
+                audio.playReaction();
+                this.fissionState.hasFissioned = true;
+                this.fissionState.fissionCount++;
+                this.fissionState.generation++;
+
+                // Remove target nucleus
+                this.sceneManager.remove(targetNucleus);
+
+                // Create fission fragments (Ba-141 + Kr-92 is common)
+                const fragment1 = ParticleFactory.createNucleus(56, 85, false); // Ba-141
+                const fragment2 = ParticleFactory.createNucleus(36, 56, false); // Kr-92
+
+                fragment1.position.copy(position);
+                fragment2.position.copy(position);
+
+                fragment1.userData.velocity = new THREE.Vector3(
+                    -3 - Math.random() * 2,
+                    2 + Math.random() * 2,
+                    (Math.random() - 0.5) * 2
+                );
+                fragment2.userData.velocity = new THREE.Vector3(
+                    3 + Math.random() * 2,
+                    -2 - Math.random() * 2,
+                    (Math.random() - 0.5) * 2
+                );
+
+                this.sceneManager.add(fragment1);
+                this.sceneManager.add(fragment2);
+                this.fissionState.fragments.push(fragment1, fragment2);
+
+                // Add labels for fragments
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.createLabel(fragment1, {
+                        name: 'Barium-141',
+                        symbol: '¹⁴¹Ba',
+                        type: 'nucleus',
+                        mass: 141,
+                        charge: 56
+                    });
+                    this.particleLabelSystem.createLabel(fragment2, {
+                        name: 'Krypton-92',
+                        symbol: '⁹²Kr',
+                        type: 'nucleus',
+                        mass: 92,
+                        charge: 36
+                    });
+                }
+
+                // Release 2-3 neutrons
+                const neutronCount = this.fissionState.chainMode === 'controlled' ? 1 : (2 + Math.floor(Math.random() * 2));
+                for (let i = 0; i < neutronCount; i++) {
+                    const neutron = ParticleFactory.createNeutronProjectile();
+                    neutron.position.copy(position);
+                    neutron.userData.velocity = new THREE.Vector3(
+                        (Math.random() - 0.5) * 8,
+                        (Math.random() - 0.5) * 8,
+                        (Math.random() - 0.5) * 8
+                    );
+                    neutron.userData.isReleased = true;
+                    this.sceneManager.add(neutron);
+
+                    if (neutron.userData.trail) {
+                        this.trails.push(neutron.userData.trail);
+                        this.sceneManager.add(neutron.userData.trail.getMesh());
+                    }
+
+                    if (this.fissionState.chainMode === 'chain') {
+                        this.fissionState.activeNeutrons.push(neutron);
+                    }
+                }
+
+                // Update energy (approximately 200 MeV per fission)
+                this.fissionState.totalEnergy += 200;
+                this.fissionState.neutronCount += neutronCount;
+
+                // Update UI
+                document.getElementById('fission-count').textContent = this.fissionState.fissionCount;
+                document.getElementById('neutron-count').textContent = this.fissionState.neutronCount;
+                document.getElementById('generation-count').textContent = this.fissionState.generation;
+                document.getElementById('fission-energy').textContent = `${this.fissionState.totalEnergy} MeV`;
+                document.getElementById('fission-energy-fill').style.width = `${Math.min(100, this.fissionState.totalEnergy / 10)}%`;
+
+                audio.playSuccess();
+            }
+
+            updateFissionPhysics(delta) {
+                if (!this.fissionState) return;
+
+                // Update active neutrons
+                this.fissionState.activeNeutrons.forEach((neutron, index) => {
+                    if (!neutron.userData.velocity) return;
+
+                    neutron.position.add(
+                        neutron.userData.velocity.clone().multiplyScalar(delta * SimState.simulationSpeed)
+                    );
+
+                    if (neutron.userData.trail) {
+                        neutron.userData.trail.addPoint(neutron.position);
+                    }
+
+                    // Check collision with nucleus (simplified)
+                    if (this.fissionState.nucleus && !this.fissionState.hasFissioned) {
+                        const dist = neutron.position.distanceTo(this.fissionState.nucleus.position);
+                        if (dist < 2) {
+                            this.performFission(this.fissionState.nucleus, neutron.position);
+                            this.fissionState.activeNeutrons.splice(index, 1);
+                            this.sceneManager.remove(neutron);
+                            if (this.particleLabelSystem) {
+                                this.particleLabelSystem.removeLabel(neutron.uuid);
+                            }
+                        }
+                    }
+
+                    // Remove neutrons that go too far
+                    if (neutron.position.length() > 25) {
+                        this.sceneManager.remove(neutron);
+                        if (this.particleLabelSystem) {
+                            this.particleLabelSystem.removeLabel(neutron.uuid);
+                        }
+                        this.fissionState.activeNeutrons.splice(index, 1);
+                    }
+                });
+
+                // Update fragments
+                this.fissionState.fragments.forEach(fragment => {
+                    if (fragment.userData.velocity) {
+                        fragment.position.add(
+                            fragment.userData.velocity.clone().multiplyScalar(delta * SimState.simulationSpeed * 0.5)
+                        );
+                        // Slow down fragments
+                        fragment.userData.velocity.multiplyScalar(0.99);
+                    }
+                });
+            }
+
             loadFusion() {
-                // Placeholder - will be implemented in Step 7
+                const reactionType = document.getElementById('fusion-reaction-select')?.value || 'DT';
+
+                // Create fusion reactants based on reaction type
+                let reactant1, reactant2;
+                let label1Data, label2Data;
+
+                switch (reactionType) {
+                    case 'DT':
+                        reactant1 = ParticleFactory.createNucleus(1, 1, true); // Deuterium
+                        reactant2 = ParticleFactory.createNucleus(1, 2, true); // Tritium
+                        label1Data = { name: 'Deuterium', symbol: '²H', type: 'nucleus', mass: 2, charge: 1 };
+                        label2Data = { name: 'Tritium', symbol: '³H', type: 'nucleus', mass: 3, charge: 1 };
+                        break;
+                    case 'DD':
+                        reactant1 = ParticleFactory.createNucleus(1, 1, true); // Deuterium
+                        reactant2 = ParticleFactory.createNucleus(1, 1, true); // Deuterium
+                        label1Data = { name: 'Deuterium', symbol: '²H', type: 'nucleus', mass: 2, charge: 1 };
+                        label2Data = { name: 'Deuterium', symbol: '²H', type: 'nucleus', mass: 2, charge: 1 };
+                        break;
+                    case 'pp':
+                        reactant1 = ParticleFactory.createProton(true);
+                        reactant2 = ParticleFactory.createProton(true);
+                        label1Data = { name: 'Proton', symbol: 'p', type: 'proton', mass: 1, charge: 1 };
+                        label2Data = { name: 'Proton', symbol: 'p', type: 'proton', mass: 1, charge: 1 };
+                        break;
+                }
+
+                reactant1.position.set(-5, 0, 0);
+                reactant2.position.set(5, 0, 0);
+
+                this.sceneManager.add(reactant1);
+                this.sceneManager.add(reactant2);
+
+                // Add labels
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.createLabel(reactant1, label1Data);
+                    this.particleLabelSystem.createLabel(reactant2, label2Data);
+                }
+
+                // Create Coulomb barrier visualization (energy barrier ring)
+                const barrierGeom = new THREE.TorusGeometry(3, 0.1, 8, 32);
+                const barrierMat = new THREE.MeshBasicMaterial({
+                    color: 0xef4444,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const barrier = new THREE.Mesh(barrierGeom, barrierMat);
+                barrier.rotation.x = Math.PI / 2;
+                barrier.userData.dynamic = true;
+                this.sceneManager.add(barrier);
+
+                this.fusionState = {
+                    reactant1,
+                    reactant2,
+                    barrier,
+                    reactionType,
+                    hasFused: false,
+                    temperature: 100,
+                    products: []
+                };
+
+                SimState.particles = this.fusionState;
+
+                // Update UI
+                this.updateFusionBarrierUI(100);
+                document.getElementById('fusion-energy').textContent = '0 MeV';
+
                 this.updateInfoPanel('fusion');
+            }
+
+            triggerFusion() {
+                if (!this.fusionState || this.fusionState.hasFused) return;
+
+                const temp = parseFloat(document.getElementById('plasma-temp')?.value || 100);
+                this.fusionState.temperature = temp;
+
+                // Start moving reactants toward each other
+                this.fusionState.reactant1.userData.velocity = new THREE.Vector3(2, 0, 0);
+                this.fusionState.reactant2.userData.velocity = new THREE.Vector3(-2, 0, 0);
+
+                audio.playClick();
+            }
+
+            updateFusionBarrierUI(temp) {
+                const barrierFill = document.getElementById('barrier-fill');
+                const barrierStatus = document.getElementById('barrier-status');
+
+                // Fusion requires ~100 million K for DT, higher for others
+                const requiredTemp = this.fusionState?.reactionType === 'DT' ? 100 :
+                                    this.fusionState?.reactionType === 'DD' ? 150 : 200;
+
+                const percentage = Math.min(100, (temp / requiredTemp) * 100);
+
+                if (barrierFill) {
+                    barrierFill.style.width = `${percentage}%`;
+                }
+
+                if (barrierStatus) {
+                    if (temp >= requiredTemp) {
+                        barrierStatus.textContent = 'Above barrier!';
+                        barrierStatus.style.color = '#22c55e';
+                    } else {
+                        barrierStatus.textContent = 'Below barrier';
+                        barrierStatus.style.color = '#ef4444';
+                    }
+                }
+            }
+
+            performFusion() {
+                if (this.fusionState.hasFused) return;
+
+                audio.playReaction();
+                this.fusionState.hasFused = true;
+
+                const pos = new THREE.Vector3(0, 0, 0);
+
+                // Remove reactants
+                this.sceneManager.remove(this.fusionState.reactant1);
+                this.sceneManager.remove(this.fusionState.reactant2);
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.removeLabel(this.fusionState.reactant1.uuid);
+                    this.particleLabelSystem.removeLabel(this.fusionState.reactant2.uuid);
+                }
+
+                // Create fusion products based on reaction
+                let product, productLabel, energyReleased;
+
+                switch (this.fusionState.reactionType) {
+                    case 'DT':
+                        // D + T → He-4 + n + 17.6 MeV
+                        product = ParticleFactory.createNucleus(2, 2, true); // He-4
+                        productLabel = { name: 'Helium-4', symbol: '⁴He', type: 'nucleus', mass: 4, charge: 2 };
+                        energyReleased = 17.6;
+
+                        // Release neutron
+                        const neutron = ParticleFactory.createNeutronProjectile();
+                        neutron.position.copy(pos);
+                        neutron.userData.velocity = new THREE.Vector3(
+                            (Math.random() - 0.5) * 10,
+                            (Math.random() - 0.5) * 10,
+                            (Math.random() - 0.5) * 10
+                        );
+                        this.sceneManager.add(neutron);
+                        if (neutron.userData.trail) {
+                            this.trails.push(neutron.userData.trail);
+                            this.sceneManager.add(neutron.userData.trail.getMesh());
+                        }
+                        if (this.particleLabelSystem) {
+                            this.particleLabelSystem.createLabel(neutron, {
+                                name: 'Neutron',
+                                symbol: 'n',
+                                type: 'neutron',
+                                mass: 1,
+                                charge: 0,
+                                energy: 14.1
+                            });
+                        }
+                        this.fusionState.products.push(neutron);
+                        break;
+
+                    case 'DD':
+                        // D + D → He-3 + n + 3.3 MeV
+                        product = ParticleFactory.createNucleus(2, 1, true); // He-3
+                        productLabel = { name: 'Helium-3', symbol: '³He', type: 'nucleus', mass: 3, charge: 2 };
+                        energyReleased = 3.3;
+                        break;
+
+                    case 'pp':
+                        // p + p → D + e+ + v + 0.42 MeV
+                        product = ParticleFactory.createNucleus(1, 1, true); // Deuterium
+                        productLabel = { name: 'Deuterium', symbol: '²H', type: 'nucleus', mass: 2, charge: 1 };
+                        energyReleased = 0.42;
+
+                        // Release positron
+                        const positron = ParticleFactory.createBetaPlus(true);
+                        positron.position.copy(pos);
+                        positron.userData.velocity = new THREE.Vector3(
+                            (Math.random() - 0.5) * 8,
+                            (Math.random() - 0.5) * 8,
+                            (Math.random() - 0.5) * 8
+                        );
+                        this.sceneManager.add(positron);
+                        if (positron.userData.trail) {
+                            this.trails.push(positron.userData.trail);
+                            this.sceneManager.add(positron.userData.trail.getMesh());
+                        }
+                        this.fusionState.products.push(positron);
+                        break;
+                }
+
+                product.position.copy(pos);
+                this.sceneManager.add(product);
+                this.fusionState.products.push(product);
+
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.createLabel(product, productLabel);
+                }
+
+                // Create energy burst effect
+                this.createEnergyBurst(pos);
+
+                // Update UI
+                document.getElementById('fusion-energy').textContent = `${energyReleased} MeV`;
+
+                audio.playSuccess();
+            }
+
+            createEnergyBurst(position) {
+                // Create expanding energy ring
+                const ringGeom = new THREE.RingGeometry(0.1, 0.3, 32);
+                const ringMat = new THREE.MeshBasicMaterial({
+                    color: 0x22c55e,
+                    transparent: true,
+                    opacity: 1,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeom, ringMat);
+                ring.position.copy(position);
+                ring.userData.dynamic = true;
+                ring.userData.isEnergyBurst = true;
+                ring.userData.birthTime = performance.now();
+                this.sceneManager.add(ring);
+
+                // Create second ring
+                const ring2 = ring.clone();
+                ring2.rotation.x = Math.PI / 2;
+                this.sceneManager.add(ring2);
+
+                const ring3 = ring.clone();
+                ring3.rotation.y = Math.PI / 2;
+                this.sceneManager.add(ring3);
+            }
+
+            updateFusionPhysics(delta) {
+                if (!this.fusionState) return;
+
+                // Update reactant positions if moving
+                if (!this.fusionState.hasFused) {
+                    if (this.fusionState.reactant1.userData.velocity) {
+                        this.fusionState.reactant1.position.add(
+                            this.fusionState.reactant1.userData.velocity.clone().multiplyScalar(delta * SimState.simulationSpeed)
+                        );
+                    }
+                    if (this.fusionState.reactant2.userData.velocity) {
+                        this.fusionState.reactant2.position.add(
+                            this.fusionState.reactant2.userData.velocity.clone().multiplyScalar(delta * SimState.simulationSpeed)
+                        );
+                    }
+
+                    // Check for collision/fusion
+                    if (this.fusionState.reactant1.userData.velocity) {
+                        const dist = this.fusionState.reactant1.position.distanceTo(this.fusionState.reactant2.position);
+
+                        // Check if temperature is sufficient
+                        const requiredTemp = this.fusionState.reactionType === 'DT' ? 100 :
+                                           this.fusionState.reactionType === 'DD' ? 150 : 200;
+
+                        if (dist < 1 && this.fusionState.temperature >= requiredTemp) {
+                            this.performFusion();
+                        } else if (dist < 1) {
+                            // Bounce back if temperature too low
+                            this.fusionState.reactant1.userData.velocity.multiplyScalar(-0.5);
+                            this.fusionState.reactant2.userData.velocity.multiplyScalar(-0.5);
+                            audio.playError();
+                        }
+                    }
+                }
+
+                // Update fusion products
+                this.fusionState.products.forEach(product => {
+                    if (product.userData.velocity) {
+                        product.position.add(
+                            product.userData.velocity.clone().multiplyScalar(delta * SimState.simulationSpeed)
+                        );
+                        if (product.userData.trail) {
+                            product.userData.trail.addPoint(product.position);
+                        }
+                    }
+                });
+
+                // Update energy burst rings
+                this.sceneManager.scene.traverse((obj) => {
+                    if (obj.userData.isEnergyBurst) {
+                        const age = (performance.now() - obj.userData.birthTime) / 1000;
+                        const scale = 1 + age * 10;
+                        obj.scale.setScalar(scale);
+                        obj.material.opacity = Math.max(0, 1 - age);
+
+                        if (age > 1) {
+                            this.sceneManager.remove(obj);
+                        }
+                    }
+                });
             }
 
             updateAtomStats(element) {
@@ -2411,25 +3929,78 @@
                         </p>
                     `,
                     scattering: `
-                        <h3>Level 3: Scattering</h3>
-                        <p>Explore the Rutherford gold foil experiment and understand how particles scatter when hitting atomic nuclei.</p>
+                        <h3>Level 3: Rutherford Scattering</h3>
+                        <p>In 1911, Ernest Rutherford fired alpha particles at gold foil and discovered the atomic nucleus!</p>
                         <div class="info-highlight">
-                            Complete Level 2 to unlock this content.
+                            <strong>The Experiment:</strong><br>
+                            • Most α particles pass straight through<br>
+                            • Some deflect at small angles<br>
+                            • Very few bounce back (~180°)
                         </div>
+                        <div class="info-highlight" style="border-color: #fbbf24;">
+                            <strong style="color: #fbbf24;">Key Variables:</strong><br>
+                            <strong>Impact Parameter (b):</strong> Distance from direct path<br>
+                            <strong>Deflection Angle (θ):</strong> How much the particle bends<br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Smaller b → Larger θ (closer = more deflection)</span>
+                        </div>
+                        <div class="info-highlight" style="border-color: var(--accent-cyan);">
+                            <strong>Coulomb's Law:</strong><br>
+                            F = k·q₁·q₂/r²<br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">The closer the α particle gets to the nucleus, the stronger the repulsive force</span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 1rem;">
+                            <em>Adjust energy and impact parameter, then fire α particles at the gold nucleus.</em>
+                        </p>
                     `,
                     fission: `
                         <h3>Level 4: Nuclear Fission</h3>
-                        <p>Heavy nuclei split into smaller fragments, releasing enormous energy. This powers nuclear reactors.</p>
-                        <div class="info-highlight">
-                            Complete Level 3 to unlock this content.
+                        <p>Heavy unstable nuclei like U-235 can split when struck by a neutron, releasing enormous energy.</p>
+                        <div class="info-highlight" style="border-color: #22c55e;">
+                            <strong style="color: #22c55e;">The Process:</strong><br>
+                            ¹n + ²³⁵U → ¹⁴¹Ba + ⁹²Kr + 3n + <strong>~200 MeV</strong>
                         </div>
+                        <div class="info-highlight" style="border-color: #ef4444;">
+                            <strong style="color: #ef4444;">Chain Reaction:</strong><br>
+                            Released neutrons can trigger more fissions!<br>
+                            • <strong>Controlled:</strong> Nuclear reactor (1 neutron absorbed)<br>
+                            • <strong>Uncontrolled:</strong> Nuclear explosion (exponential)
+                        </div>
+                        <div class="info-highlight">
+                            <strong>Critical Mass:</strong><br>
+                            Minimum amount of fissile material needed for sustained chain reaction<br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">U-235: ~52 kg | Pu-239: ~10 kg</span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 1rem;">
+                            <em>Fire a neutron at the nucleus and observe the fission products.</em>
+                        </p>
                     `,
                     fusion: `
                         <h3>Level 5: Nuclear Fusion</h3>
-                        <p>Light nuclei combine to form heavier elements, releasing even more energy than fission. This powers the sun.</p>
-                        <div class="info-highlight">
-                            Complete Level 4 to unlock this content.
+                        <p>Light nuclei combine to form heavier elements, releasing tremendous energy. This powers all stars!</p>
+                        <div class="info-highlight" style="border-color: #f59e0b;">
+                            <strong style="color: #f59e0b;">Coulomb Barrier:</strong><br>
+                            Nuclei are positive → they repel each other!<br>
+                            Must overcome this barrier to fuse<br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Requires extreme temperature (~100 million K)</span>
                         </div>
+                        <div class="info-highlight" style="border-color: #22c55e;">
+                            <strong style="color: #22c55e;">D-T Fusion:</strong><br>
+                            ²H + ³H → ⁴He + ¹n + <strong>17.6 MeV</strong><br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Most promising for fusion reactors (ITER, NIF)</span>
+                        </div>
+                        <div class="info-highlight" style="border-color: var(--accent-purple);">
+                            <strong style="color: var(--accent-purple);">Solar pp Chain:</strong><br>
+                            p + p → ²H + e⁺ + ν<br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Powers the Sun (takes ~10 billion years)</span>
+                        </div>
+                        <div class="info-highlight">
+                            <strong>E = mc²:</strong><br>
+                            Mass defect converts to energy<br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Fusion: ~4× more energy per nucleon than fission!</span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 1rem;">
+                            <em>Adjust plasma temperature and initiate fusion reaction.</em>
+                        </p>
                     `
                 };
 
@@ -2578,6 +4149,20 @@
                         }
                     });
                 }
+
+                // Level-specific physics updates
+                if (SimState.currentLevel === 3) {
+                    this.updateScatteringPhysics(delta);
+                } else if (SimState.currentLevel === 4) {
+                    this.updateFissionPhysics(delta);
+                } else if (SimState.currentLevel === 5) {
+                    this.updateFusionPhysics(delta);
+                }
+
+                // Update particle label positions
+                if (this.particleLabelSystem) {
+                    this.particleLabelSystem.updatePositions();
+                }
             }
         }
 
@@ -2705,6 +4290,131 @@
                 document.getElementById('decay-reset-btn').addEventListener('click', () => {
                     audio.playClick();
                     this.levelManager.loadLevel(2);
+                });
+
+                // Decay tabs
+                document.querySelectorAll('.decay-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.decay-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+
+                        // Hide all tab contents
+                        document.querySelectorAll('.decay-tab-content').forEach(content => {
+                            content.style.display = 'none';
+                        });
+
+                        // Show selected tab content
+                        const tabId = tab.dataset.decayTab;
+                        document.getElementById(`decay-tab-${tabId}`).style.display = 'block';
+
+                        audio.playClick();
+                    });
+                });
+
+                // Half-life slider
+                document.getElementById('halflife-slider')?.addEventListener('input', (e) => {
+                    const halfLives = parseFloat(e.target.value);
+                    const remaining = Math.pow(0.5, halfLives) * 100;
+                    document.getElementById('halflife-count').textContent = halfLives.toFixed(1);
+                    document.getElementById('halflife-percent').textContent = `${remaining.toFixed(1)}%`;
+                    document.getElementById('halflife-fill').style.width = `${remaining}%`;
+                });
+
+                // Half-life animate button
+                document.getElementById('halflife-animate-btn')?.addEventListener('click', () => {
+                    const slider = document.getElementById('halflife-slider');
+                    let value = 0;
+                    const interval = setInterval(() => {
+                        value += 0.1;
+                        if (value > 5) {
+                            clearInterval(interval);
+                            return;
+                        }
+                        slider.value = value;
+                        slider.dispatchEvent(new Event('input'));
+                    }, 100);
+                    audio.playClick();
+                });
+
+                // Scattering controls (Level 3)
+                document.getElementById('scattering-energy')?.addEventListener('input', (e) => {
+                    document.getElementById('scattering-energy-value').textContent = `${e.target.value} MeV`;
+                });
+
+                document.getElementById('impact-parameter')?.addEventListener('input', (e) => {
+                    document.getElementById('impact-value').textContent = `${e.target.value} fm`;
+                });
+
+                document.getElementById('fire-alpha-btn')?.addEventListener('click', () => {
+                    if (this.levelManager && this.levelManager.fireAlphaParticle) {
+                        this.levelManager.fireAlphaParticle();
+                    }
+                });
+
+                document.getElementById('fire-beam-btn')?.addEventListener('click', () => {
+                    if (this.levelManager && this.levelManager.fireAlphaBeam) {
+                        this.levelManager.fireAlphaBeam();
+                    }
+                });
+
+                document.getElementById('scattering-reset-btn')?.addEventListener('click', () => {
+                    audio.playClick();
+                    this.levelManager.loadLevel(3);
+                });
+
+                // Fission controls (Level 4)
+                document.getElementById('fission-element-select')?.addEventListener('change', (e) => {
+                    audio.playClick();
+                    this.levelManager.loadLevel(4);
+                });
+
+                document.getElementById('fission-trigger-btn')?.addEventListener('click', () => {
+                    if (this.levelManager && this.levelManager.triggerFission) {
+                        this.levelManager.triggerFission();
+                    }
+                });
+
+                document.getElementById('fission-reset-btn')?.addEventListener('click', () => {
+                    audio.playClick();
+                    this.levelManager.loadLevel(4);
+                });
+
+                // Chain mode buttons
+                document.querySelectorAll('.chain-mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.chain-mode-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        if (this.levelManager.fissionState) {
+                            this.levelManager.fissionState.chainMode = btn.dataset.mode;
+                        }
+                        audio.playClick();
+                    });
+                });
+
+                // Fusion controls (Level 5)
+                document.getElementById('fusion-reaction-select')?.addEventListener('change', (e) => {
+                    audio.playClick();
+                    this.levelManager.loadLevel(5);
+                });
+
+                document.getElementById('plasma-temp')?.addEventListener('input', (e) => {
+                    const temp = parseFloat(e.target.value);
+                    document.getElementById('plasma-temp-value').textContent = `${temp} million K`;
+                    if (this.levelManager.fusionState) {
+                        this.levelManager.fusionState.temperature = temp;
+                        this.levelManager.updateFusionBarrierUI(temp);
+                    }
+                });
+
+                document.getElementById('fusion-trigger-btn')?.addEventListener('click', () => {
+                    if (this.levelManager && this.levelManager.triggerFusion) {
+                        this.levelManager.triggerFusion();
+                    }
+                });
+
+                document.getElementById('fusion-reset-btn')?.addEventListener('click', () => {
+                    audio.playClick();
+                    this.levelManager.loadLevel(5);
                 });
 
                 // Keyboard shortcuts
