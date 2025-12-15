@@ -23,50 +23,52 @@
     /* HUD */
     #hud {
       position: absolute; inset: 14px 14px auto 14px;
-      display: grid; grid-template-columns: 1fr 420px; gap: 12px;
+      display: grid; grid-template-columns: minmax(280px, 34%) 1fr;
+      gap: 12px;
       pointer-events: none;
     }
     @media (max-width: 980px) {
       #hud { grid-template-columns: 1fr; }
       #rightPanel { margin-bottom: 10px; }
       #bottomBar { inset: auto 14px 14px 14px; }
+      #leftPanel { width: auto; }
     }
 
     .panel {
-      background: rgba(10, 16, 34, 0.72);
+      background: rgba(10, 16, 34, 0.62);
       border: 1px solid rgba(255,255,255,0.10);
       border-radius: 14px;
       box-shadow: 0 10px 26px rgba(0,0,0,0.35);
-      backdrop-filter: blur(8px);
-      padding: 12px 12px;
+      backdrop-filter: blur(10px) saturate(120%);
+      padding: 10px 12px;
       pointer-events: auto;
     }
     .stepCard {
-      border: 1px dashed rgba(255,255,255,0.22);
+      border: 1px dashed rgba(255,255,255,0.18);
       border-radius: 12px;
       padding: 10px;
-      margin-bottom: 10px;
-      background: rgba(255,255,255,0.02);
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.03);
       position: relative;
+      transition: border-color 160ms ease, background 160ms ease;
     }
     .stepCard.locked { opacity: 0.55; }
+    .stepCard.active { border-color: rgba(158,255,255,0.6); background: rgba(110, 194, 255, 0.08); }
     .stepLabel {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 12px; letter-spacing: 0.2px; text-transform: uppercase;
       padding: 4px 8px; border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.04);
     }
     .stepLabel .icon { font-size: 14px; }
-    .stepHint { font-size: 12px; opacity: 0.82; margin: 6px 0 10px 0; display: block; }
+    .stepHint { font-size: 12px; opacity: 0.82; margin: 6px 0 8px 0; display: block; }
+    .stepBody { display: none; }
+    .stepCard.active .stepBody { display: block; }
+    .stepToggle { position:absolute; right: 10px; top: 10px; opacity: 0.85; }
     .titleRow { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 8px; }
     .titleRow h1 { font-size: 15px; margin: 0; font-weight: 700; letter-spacing: 0.2px; }
-    .pill {
-      font-size: 12px; padding: 4px 8px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.06);
-      color: #e9eefc;
-    }
+    .pill { font-size: 12px; padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.06); color: #e9eefc; }
     .row { display:flex; gap:8px; flex-wrap: wrap; align-items:center; }
     button, input, select {
       font: inherit;
@@ -99,27 +101,23 @@
     .chip .dot.beta { background: #6fc2ff; box-shadow: 0 0 6px rgba(111,194,255,0.8); }
 
     /* Mission panel */
-    #missionList { max-height: 280px; overflow: auto; padding-right: 4px; }
+    #missionList { max-height: 320px; overflow: auto; padding-right: 4px; display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
     .mission {
       border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.05);
       border-radius: 12px;
       padding: 10px;
-      margin-bottom: 8px;
       display:flex; flex-direction: column; gap: 6px;
+      min-height: 120px;
     }
     .missionHeader { display:flex; justify-content:space-between; align-items:center; gap:10px; }
     .missionHeader .name { font-weight: 800; font-size: 13px; }
     .missionHeader .tag { font-size: 11px; opacity: 0.8; }
-    .mission .desc { font-size: 12px; opacity: 0.82; }
-    .mission .actions { display:flex; gap:8px; flex-wrap: wrap; align-items:center; }
+    .mission .desc { font-size: 12px; opacity: 0.8; line-height: 1.3; }
+    .mission .actions { display:flex; gap:6px; flex-wrap: wrap; align-items:center; }
 
     /* Bottom bar */
-    #bottomBar {
-      position: absolute; inset: auto 14px 14px 14px;
-      display: grid; grid-template-columns: 1fr; gap: 12px;
-      pointer-events: none;
-    }
+    #bottomBar { position: absolute; inset: auto 14px 14px 14px; display: grid; grid-template-columns: 1fr; gap: 12px; pointer-events: none; }
     #equationPanel { pointer-events: auto; }
     #equation { font-size: 15px; line-height: 1.5; }
     .nuclide {
@@ -162,6 +160,23 @@
     /* Canvas helpers */
     #centerGuide { position:absolute; left:50%; top:50%; width:24px; height:24px; transform: translate(-50%,-50%); pointer-events:none; opacity:0.35; filter: drop-shadow(0 0 6px rgba(111,194,255,0.8)); }
     #centerGuide svg { width: 100%; height: 100%; }
+
+    #sidebarToggle {
+      position:absolute; left:10px; top:10px; z-index:2; pointer-events:auto;
+      background: rgba(12,18,36,0.7);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      width: 34px; height: 34px; display:flex; align-items:center; justify-content:center;
+      color: #e9eefc;
+    }
+    #leftPanel.collapsed { transform: translateX(-110%); opacity: 0; pointer-events: none; }
+    #leftPanel { transition: transform 180ms ease, opacity 180ms ease; }
+
+    #particleLegend {
+      position:absolute; right: 12px; top: 12px; display:flex; flex-direction: column; gap:4px;
+      pointer-events:none;
+    }
+    #particleLegend .chip { background: rgba(10,16,34,0.7); }
   </style>
 </head>
 <body>
@@ -176,6 +191,8 @@
 
   <div id="toast"></div>
 
+  <button id="sidebarToggle" title="Hide or show controls">⏴</button>
+
   <div id="hud">
     <div class="panel" id="leftPanel">
       <div class="titleRow">
@@ -185,65 +202,68 @@
           <button id="toggleHelpBtn" title="What is this simulation?" style="pointer-events:auto;">❔</button>
         </div>
       </div>
-      <div class="stepCard" id="step1">
-        <span class="stepLabel"><span class="icon">🎯</span>Step 1 · Pick a mission</span>
-        <span class="stepHint">Tap a mission card to load a preset nucleus for that process.</span>
-        <div id="missionList"></div>
+      <div class="stepCard active" id="step1">
+        <span class="stepLabel"><span class="icon">🎯</span>Step 1</span>
+        <button class="stepToggle" data-step="1">▼</button>
+        <span class="stepHint">Tap a mission chip to load a preset nucleus.</span>
+        <div class="stepBody">
+          <div id="missionList"></div>
+        </div>
       </div>
 
       <div class="stepCard locked" id="step2">
-        <span class="stepLabel"><span class="icon">🧬</span>Step 2 · Prep the nucleus</span>
-        <span class="stepHint">Use Sandbox to swap isotopes or keep the mission default.</span>
-        <div class="kv" style="margin-bottom: 8px;">
-          <div>
-            <div class="k">Current nucleus</div>
-            <div class="v" id="nuclideReadout">—</div>
+        <span class="stepLabel"><span class="icon">🧬</span>Step 2</span>
+        <button class="stepToggle" data-step="2">▼</button>
+        <span class="stepHint">Load or tweak the starting nucleus.</span>
+        <div class="stepBody">
+          <div class="kv" style="margin-bottom: 8px;">
+            <div>
+              <div class="k">Current nucleus</div>
+              <div class="v" id="nuclideReadout">—</div>
+            </div>
+            <div>
+              <div class="k">Stability hint</div>
+              <div class="v" id="stabilityReadout">—</div>
+            </div>
           </div>
-          <div>
-            <div class="k">Stability hint</div>
-            <div class="v" id="stabilityReadout">—</div>
+          <div class="row" style="margin-bottom: 8px;">
+            <label class="small muted" title="Load a suggested isotope pair or single nucleus.">🔧 Sandbox</label>
+            <select id="sandboxIsotope">
+              <option value="84,126">Po-210 (α)</option>
+              <option value="6,8">C-14 (β-)</option>
+              <option value="27,33">Co-60 (γ)</option>
+              <option value="92,143">U-235 (fission)</option>
+              <option value="1,1|1,2">H-2 + H-3 (fusion)</option>
+            </select>
+            <button id="loadSandboxBtn" title="Load sandbox selection">⏎</button>
+            <button id="resetBtn" title="Reset scores">🔄</button>
           </div>
-        </div>
-        <div class="row" style="margin-bottom: 8px;">
-          <label class="small muted" title="Load a suggested isotope pair or single nucleus.">Sandbox:</label>
-          <select id="sandboxIsotope">
-            <option value="84,126">Po-210 (α)</option>
-            <option value="6,8">C-14 (β-)</option>
-            <option value="27,33">Co-60 (γ)</option>
-            <option value="92,143">U-235 (fission)</option>
-            <option value="1,1|1,2">H-2 + H-3 (fusion)</option>
-          </select>
-          <button id="loadSandboxBtn" title="Load sandbox selection">⏎</button>
-          <button id="resetBtn" title="Reset scores">🔄</button>
-        </div>
-        <div class="chipRow">
-          <span class="chip"><span class="dot proton"></span>p⁺ proton</span>
-          <span class="chip"><span class="dot neutron"></span>n⁰ neutron</span>
-          <span class="chip"><span class="dot beta"></span>β⁻</span>
-          <span class="chip"><span class="dot gamma"></span>γ photon</span>
         </div>
       </div>
 
       <div class="stepCard locked" id="step3">
-        <span class="stepLabel"><span class="icon">⚡</span>Step 3 · Run the reaction</span>
-        <span class="stepHint">Buttons unlock after you load a nucleus.</span>
-        <div class="row" style="margin-bottom: 10px;">
-          <button id="alphaBtn" title="Alpha decay">🛡️ α</button>
-          <button id="betaBtn" title="Beta minus">⚡ β⁻</button>
-          <button id="gammaBtn" title="Gamma emission">✨ γ</button>
-          <button id="fissionBtn" title="Nuclear fission">☢️</button>
-          <button id="fusionBtn" title="Nuclear fusion">🔗</button>
-        </div>
-        <div class="row" style="margin-bottom: 6px;">
-          <label class="chk small muted" title="Hides element symbols in the equation blanks to make balancing less guided.">
-            <input id="challengeToggle" type="checkbox" />
-            Challenge mode (hide symbols)
-          </label>
+        <span class="stepLabel"><span class="icon">⚡</span>Step 3</span>
+        <button class="stepToggle" data-step="3">▼</button>
+        <span class="stepHint">Trigger the matching reaction.</span>
+        <div class="stepBody">
+          <div class="row" style="margin-bottom: 10px;">
+            <button id="alphaBtn" title="Alpha decay">🛡️ α</button>
+            <button id="betaBtn" title="Beta minus">⚡ β⁻</button>
+            <button id="gammaBtn" title="Gamma emission">✨ γ</button>
+            <button id="fissionBtn" title="Nuclear fission">☢️</button>
+            <button id="fusionBtn" title="Nuclear fusion">🔗</button>
+          </div>
+          <div class="row" style="margin-bottom: 6px;">
+            <label class="chk small muted" title="Hides element symbols in the equation blanks to make balancing less guided.">
+              <input id="challengeToggle" type="checkbox" />
+              Challenge mode
+            </label>
+          </div>
         </div>
       </div>
 
       <div class="small muted" style="margin-bottom: 4px;">
-        Reveal steps in order: Mission → Prep nucleus → Reaction → Balance.
+        Reveal steps in order: Mission → Prep → Reaction → Balance.
       </div>
     </div>
 
@@ -283,6 +303,13 @@
         <span class="chip"><span class="dot gamma"></span>γ photon</span>
       </div>
     </div>
+  </div>
+
+  <div id="particleLegend" class="chipRow">
+    <span class="chip"><span class="dot proton"></span>p⁺</span>
+    <span class="chip"><span class="dot neutron"></span>n⁰</span>
+    <span class="chip"><span class="dot beta"></span>β⁻</span>
+    <span class="chip"><span class="dot gamma"></span>γ</span>
   </div>
 
   <div id="help" class="panel">
@@ -353,13 +380,14 @@ function nuclideLabel(Z, N) {
 
 /* ---------- TEKS-aligned Missions ---------- */
 const missions = [
-  { id: "M1", title: "Alpha decay balancing", tag: "112.43(c)(14)(A)", desc: "Describe alpha decay using a balanced nuclear equation (A and Z must be conserved).", type: "alpha", start: { Z: 84, N: 126 } },
-  { id: "M2", title: "Beta (β⁻) decay balancing", tag: "112.43(c)(14)(A)", desc: "Describe beta decay using a balanced nuclear equation (a neutron becomes a proton).", type: "beta", start: { Z: 6, N: 8 } },
-  { id: "M3", title: "Gamma emission", tag: "112.43(c)(14)(A)", desc: "Gamma emission changes energy state but not A or Z. Show it with a nuclear equation.", type: "gamma", start: { Z: 27, N: 33 } },
-  { id: "M4", title: "Fission vs fusion", tag: "112.43(c)(14)(B)", desc: "Run a fission reaction for U-235 and compare with fusion behavior.", type: "fission", start: { Z: 92, N: 143 } },
-  { id: "M5", title: "Fusion reaction", tag: "112.43(c)(14)(B)", desc: "Run fusion: deuterium + tritium → helium-4 + neutron.", type: "fusion", start: { pair: [{Z:1,N:1},{Z:1,N:2}] } },
-  { id: "M6", title: "Applications decision", tag: "112.43(c)(14)(C)", desc: "Choose an application for the radiation type and justify it (therapy vs imaging vs power).", type: "applications", start: { Z: 6, N: 8 } }
+  { id: "M1", title: "Alpha decay balancing", tag: "112.43(c)(14)(A)", desc: "Balance α decay (A-4, Z-2).", type: "alpha", start: { Z: 84, N: 126 } },
+  { id: "M2", title: "Beta (β⁻) decay balancing", tag: "112.43(c)(14)(A)", desc: "Balance β⁻ (n → p).", type: "beta", start: { Z: 6, N: 8 } },
+  { id: "M3", title: "Gamma emission", tag: "112.43(c)(14)(A)", desc: "Show γ where A and Z stay the same.", type: "gamma", start: { Z: 27, N: 33 } },
+  { id: "M4", title: "Fission vs fusion", tag: "112.43(c)(14)(B)", desc: "Split U-235 with incoming n.", type: "fission", start: { Z: 92, N: 143 } },
+  { id: "M5", title: "Fusion reaction", tag: "112.43(c)(14)(B)", desc: "Fuse D + T → He-4 + n.", type: "fusion", start: { pair: [{Z:1,N:1},{Z:1,N:2}] } },
+  { id: "M6", title: "Applications decision", tag: "112.43(c)(14)(C)", desc: "Pick best use by penetration and charge.", type: "applications", start: { Z: 6, N: 8 } }
 ];
+const missionIcons = { alpha: "🛡️", beta: "⚡", gamma: "✨", fission: "☢️", fusion: "🔗", applications: "💡" };
 
 /* ---------- Game State ---------- */
 const state = {
@@ -370,6 +398,7 @@ const state = {
   challenge: false,
   stepLevel: 1
 };
+let activeStep = 1;
 const missionListEl = document.getElementById("missionList");
 const missionStatusEl = document.getElementById("missionStatus");
 
@@ -407,9 +436,20 @@ function setStepLevel(level) {
   const actionButtons = ["alphaBtn","betaBtn","gammaBtn","fissionBtn","fusionBtn"].map(id => document.getElementById(id));
   actionButtons.forEach(btn => btn.disabled = level < 3);
   if (!state.currentMission) {
-    if (level < 2) missionStatusEl.textContent = "Step 1: Pick a mission card to unlock the nucleus and reactions.";
-    if (level === 2) missionStatusEl.textContent = "Step 2: Adjust the nucleus or keep defaults, then trigger a reaction.";
+    if (level < 2) missionStatusEl.textContent = "Step 1: Tap a mission chip to unlock the rest.";
+    if (level === 2) missionStatusEl.textContent = "Step 2: Nucleus loaded. Adjust if needed, then fire a reaction.";
   }
+  setActiveStep(Math.min(activeStep, level));
+}
+
+function setActiveStep(step) {
+  if (step > state.stepLevel) return;
+  activeStep = step;
+  ["step1","step2","step3"].forEach((id, idx) => {
+    const card = document.getElementById(id);
+    const unlocked = idx + 1 <= state.stepLevel;
+    card.classList.toggle("active", unlocked && (idx + 1 === activeStep));
+  });
 }
 
 /* ---------- Three.js Scene ---------- */
@@ -418,7 +458,7 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x0b1020, 10, 36);
 
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 2.8, 8.8);
+camera.position.set(0, 2.2, 7.5);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
@@ -427,8 +467,9 @@ wrap.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.minDistance = 6;
-controls.maxDistance = 22;
+controls.minDistance = 5;
+controls.maxDistance = 18;
+controls.maxPolarAngle = Math.PI * 0.72;
 
 scene.add(new THREE.HemisphereLight(0xbcd6ff, 0x203060, 0.85));
 const dir = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -543,7 +584,7 @@ function buildSingleNucleus(Z, N) {
 
   const shell = new THREE.Mesh(
     new THREE.SphereGeometry(radius * 1.25, 22, 22),
-    new THREE.MeshStandardMaterial({ color: 0x1a2f66, emissive: 0x0b2a55, emissiveIntensity: 1.0, transparent: true, opacity: 0.25, roughness: 0.9 })
+    new THREE.MeshStandardMaterial({ color: 0x2950a3, emissive: 0x123876, emissiveIntensity: 1.15, transparent: true, opacity: 0.32, roughness: 0.85 })
   );
   nucleusGroup.add(shell);
   const core = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.35, 18, 18), new THREE.MeshBasicMaterial({ color: 0x9effff, transparent:true, opacity:0.35 }));
@@ -572,7 +613,7 @@ function buildFusionPair(a, b) {
     }
     const shell = new THREE.Mesh(
       new THREE.SphereGeometry(r * 1.35, 18, 18),
-      new THREE.MeshStandardMaterial({ color: 0x1a2f66, emissive: 0x0b2a55, emissiveIntensity: 0.8, transparent:true, opacity:0.18 })
+      new THREE.MeshStandardMaterial({ color: 0x2950a3, emissive: 0x123876, emissiveIntensity: 0.95, transparent:true, opacity:0.22 })
     );
     g.add(shell);
     const anchor = new THREE.Object3D();
@@ -824,13 +865,14 @@ function renderMissions() {
     div.className = "mission";
     div.innerHTML = `
       <div class="missionHeader">
-        <div class="name">${m.title}</div>
+        <div class="pill">${missionIcons[m.type] ?? "🎯"} ${m.id}</div>
         <div class="tag">${m.tag}</div>
       </div>
+      <div class="name">${m.title}</div>
       <div class="desc">${m.desc}</div>
       <div class="actions">
         <button data-mid="${m.id}">${m.completed ? "Review" : "Start"}</button>
-        <span class="pill">${m.completed ? "✓ Done" : "Not done"}</span>
+        <span class="pill">${m.completed ? "✓" : "Ready"}</span>
       </div>
     `;
     div.querySelector("button").addEventListener("click", () => startMission(m.id));
@@ -879,6 +921,7 @@ function startMission(mid) {
 
   setSceneToCurrent();
   setStepLevel(2);
+  setActiveStep(2);
 
   eqModel = null; lastEqReaction = null;
   eqEl.textContent = (m.type === "applications") ? "Complete the application choice below." : "Run the required reaction button, then balance the equation.";
@@ -908,6 +951,7 @@ function runAlpha() {
     state.current = r.after;
     setSceneToCurrent();
     setStepLevel(3);
+    setActiveStep(3);
     startAnimation("alpha");
     setEquationForReaction({ kind: "alpha", before, after: r.after, hint: "Alpha: A−4, Z−2" });
     state.energy += 10; updateMeters();
@@ -922,6 +966,7 @@ function runBeta() {
     state.current = r.after;
     setSceneToCurrent();
     setStepLevel(3);
+    setActiveStep(3);
     startAnimation("beta");
     setEquationForReaction({ kind: "beta", before, after: r.after, hint: "β⁻: A same, Z+1" });
     state.energy += 8; updateMeters();
@@ -933,6 +978,7 @@ function runGamma() {
     if (!ensureMissionMatch("gamma")) return;
     const before = { ...state.current };
     setStepLevel(3);
+    setActiveStep(3);
     startAnimation("gamma");
     setEquationForReaction({ kind: "gamma", before, after: before, hint: "γ: A and Z unchanged" });
     state.energy += 5; updateMeters();
@@ -947,6 +993,7 @@ function runFusion() {
     state.current = r.after;
     setSceneToCurrent();
     setStepLevel(3);
+    setActiveStep(3);
     startAnimation("fusion");
     setEquationForReaction({ kind: "fusion", reactants: r.extras.reactants, hint: "D+T → He-4 + n" });
     state.energy += 18; updateMeters();
@@ -957,6 +1004,7 @@ function runFission() {
   if (!state.currentPair && state.current.Z === 92) {
     if (!ensureMissionMatch("fission")) return;
     setStepLevel(3);
+    setActiveStep(3);
     startAnimation("fission");
     setEquationForReaction({ kind: "fission", hint: "U-235 + n → Ba-141 + Kr-92 + 3n" });
     state.energy += 20; updateMeters();
@@ -978,6 +1026,7 @@ function loadSandboxSelection() {
   state.currentMission = null;
   setSceneToCurrent();
   setStepLevel(2);
+  setActiveStep(2);
   eqModel = null; lastEqReaction = null;
   eqEl.textContent = "Sandbox loaded. Run a reaction to generate an equation.";
   eqHintEl.textContent = "—"; feedbackEl.textContent = "";
@@ -994,6 +1043,17 @@ document.getElementById("fissionBtn").addEventListener("click", runFission);
 document.getElementById("fusionBtn").addEventListener("click", runFusion);
 
 document.getElementById("loadSandboxBtn").addEventListener("click", loadSandboxSelection);
+
+document.querySelectorAll(".stepToggle").forEach(btn => {
+  btn.addEventListener("click", (e) => setActiveStep(parseInt(e.currentTarget.dataset.step, 10)));
+});
+
+const sidebarBtn = document.getElementById("sidebarToggle");
+sidebarBtn.addEventListener("click", () => {
+  const left = document.getElementById("leftPanel");
+  const collapsed = left.classList.toggle("collapsed");
+  sidebarBtn.textContent = collapsed ? "⏵" : "⏴";
+});
 
 document.getElementById("resetBtn").addEventListener("click", () => {
   state.xp = 0; state.badges = 0; state.energy = 0; state.safety = 100;
@@ -1044,8 +1104,8 @@ function setDefault() {
   updateMeters();
   renderMissions();
   setStepLevel(1);
-  missionStatusEl.textContent = "Select a mission (guided) or use Sandbox to explore.";
-  showToast("Loaded. Start with Mission 1.");
+  missionStatusEl.textContent = "Start with Mission 1 or enter Sandbox.";
+  showToast("Loaded. Begin with a mission chip.");
 }
 setDefault();
 
