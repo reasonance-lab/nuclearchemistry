@@ -23,13 +23,12 @@
     /* HUD */
     #hud {
       position: absolute; inset: 14px 14px auto 14px;
-      display: grid; grid-template-columns: minmax(280px, 36%) 1fr;
-      gap: 12px;
+      display: flex; align-items: flex-start; gap: 12px;
       pointer-events: none;
     }
     @media (max-width: 980px) {
-      #hud { grid-template-columns: 1fr; }
-      #rightPanel { margin-bottom: 10px; }
+      #hud { flex-direction: column; }
+      #rightPanel { position: static; width: auto; }
       #bottomBar { inset: auto 14px 14px 14px; }
       #leftPanel { width: auto; }
     }
@@ -169,39 +168,36 @@
       width: 34px; height: 34px; display:flex; align-items:center; justify-content:center;
       color: #e9eefc;
     }
+    #leftPanel { width: min(520px, 46vw); }
     #leftPanel.collapsed { transform: translateX(-110%); opacity: 0; pointer-events: none; }
     #leftPanel { transition: transform 180ms ease, opacity 180ms ease; }
 
-    #particleLegend {
-      position:absolute; right: 12px; top: 12px; display:flex; flex-direction: column; gap:4px;
-      pointer-events:none;
-    }
-    #particleLegend .chip { background: rgba(10,16,34,0.7); }
-
     /* Mission control */
     #rightPanel {
-      max-width: 420px;
-      width: min(40vw, 420px);
-      align-self: start;
+      position: fixed;
+      right: 14px;
+      top: 14px;
+      max-width: 260px;
+      width: min(30vw, 260px);
+      padding: 8px 10px;
+      z-index: 3;
     }
-    #missionCardHeader { align-items: center; }
+    #missionCardHeader { align-items: center; margin-bottom: 6px; }
     #missionToggle {
       border-radius: 10px;
-      width: 32px; height: 32px;
+      width: 30px; height: 30px;
       display:flex; align-items:center; justify-content:center;
       padding: 0;
     }
     #rightPanel.collapsed .missionBody { display: none; }
-    #missionStatus { margin-top: 2px; }
-    #missionMeters {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-width: 180px;
-    }
-    #missionMeters .kv { grid-template-columns: 1fr; }
-    #missionMeters .k { font-size: 11px; }
-    #missionMeters .v { font-size: 16px; }
+    #missionStatus { margin-top: 0; line-height: 1.3; border: 1px solid rgba(255,255,255,0.10); border-radius: 10px; padding: 8px; background: rgba(255,255,255,0.03); }
+    #missionStatus .muted { display:block; margin-bottom: 4px; font-size: 11px; letter-spacing: 0.2px; text-transform: uppercase; }
+    #missionStats { display:grid; grid-template-columns: 1fr; gap: 6px; margin: 8px 0 6px 0; }
+    .statPill { display:flex; align-items:center; justify-content:space-between; font-size:12px; padding:6px 8px; border-radius: 10px; border:1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+    .statPill strong { font-size: 13px; }
+    .missionNote { font-size: 11.5px; line-height: 1.3; margin: 2px 0 6px 0; }
+    #badgeLegend .chip { padding: 5px 7px; font-size: 11px; }
+    #badgeLegend { gap: 4px; }
   </style>
 </head>
 <body>
@@ -239,7 +235,7 @@
       <div class="stepCard locked" id="step2">
         <span class="stepLabel"><span class="icon">🧬</span>Step 2</span>
         <button class="stepToggle" data-step="2">▼</button>
-        <span class="stepHint">Load or tweak the starting nucleus.</span>
+        <span class="stepHint">Check the loaded nucleus, tweak if needed, then open Step 3 for the reaction buttons.</span>
         <div class="stepBody">
           <div class="kv" style="margin-bottom: 8px;">
             <div>
@@ -269,7 +265,7 @@
       <div class="stepCard locked" id="step3">
         <span class="stepLabel"><span class="icon">⚡</span>Step 3</span>
         <button class="stepToggle" data-step="3">▼</button>
-        <span class="stepHint">Trigger the matching reaction.</span>
+        <span class="stepHint">Press the mission’s reaction button, then solve the Step 4 equation bar below.</span>
         <div class="stepBody">
           <div class="row" style="margin-bottom: 10px;">
             <button id="alphaBtn" title="Alpha decay">🛡️ α</button>
@@ -302,43 +298,26 @@
       </div>
 
       <div class="missionBody">
-        <div class="small" id="missionStatus" style="line-height:1.4;">
-          Select a mission. Use the action buttons to perform the reaction, then balance the equation.
+        <div class="small" id="missionStatus">
+          <span class="muted">Next action</span>
+          Step 1: Pick a mission chip to unlock Prep → Reaction → Balance.
         </div>
 
-        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 8px 0;" />
-
-        <div class="row" style="align-items:flex-start; justify-content:space-between; gap:10px;">
-          <div id="missionMeters">
-            <div class="kv">
-              <div>
-                <div class="k">Energy meter</div>
-                <div class="v" id="energyReadout">0</div>
-              </div>
-              <div>
-                <div class="k">Safety meter</div>
-                <div class="v" id="safetyReadout">100</div>
-              </div>
-            </div>
-          </div>
-          <div class="small muted" style="max-width: 240px;">
-            Scoring: +XP for correct balancing; +Energy for correct reaction type; Safety drops if you try the wrong reaction for a mission.
-          </div>
+        <div id="missionStats">
+          <span class="statPill">⚡ Energy <strong id="energyReadout">0</strong></span>
+          <span class="statPill">🛡️ Safety <strong id="safetyReadout">100</strong></span>
         </div>
 
-        <div class="chipRow" style="margin-top:8px;">
-          <span class="chip"><span class="dot proton"></span>Proton (p⁺)</span>
-          <span class="chip"><span class="dot neutron"></span>Neutron (n⁰)</span>
-          <span class="chip"><span class="dot beta"></span>β⁻ particle</span>
-          <span class="chip"><span class="dot gamma"></span>γ photon</span>
+        <div class="missionNote muted">
+          ⭐ Correct balance → XP · Matching reaction → Energy · Wrong reaction lowers Safety.
         </div>
-      </div>
 
-      <div class="chipRow" style="margin-top:10px;">
-        <span class="chip"><span class="dot proton"></span>Proton (p⁺)</span>
-        <span class="chip"><span class="dot neutron"></span>Neutron (n⁰)</span>
-        <span class="chip"><span class="dot beta"></span>β⁻ particle</span>
-        <span class="chip"><span class="dot gamma"></span>γ photon</span>
+        <div class="chipRow" id="badgeLegend">
+          <span class="chip"><span class="dot proton"></span>p⁺</span>
+          <span class="chip"><span class="dot neutron"></span>n⁰</span>
+          <span class="chip"><span class="dot beta"></span>β⁻</span>
+          <span class="chip"><span class="dot gamma"></span>γ</span>
+        </div>
       </div>
     </div>
   </div>
@@ -358,10 +337,10 @@
     <div class="small">
       <h2>How to use</h2>
       <ul>
-        <li>Pick a mission (left panel). It will tell you the target process.</li>
-        <li>Click the matching reaction button (α, β⁻, γ, fission, fusion).</li>
-        <li>Then balance the nuclear equation in the bottom panel and submit (press Enter in a blank).</li>
-        <li>Use “Sandbox isotope” if you want to explore freely.</li>
+        <li>Step 1 (Mission): tap a mission chip to auto-load its nucleus, or stay in Sandbox to explore.</li>
+        <li>Step 2 (Prep): read the current nucleus + stability hint, adjust via Sandbox if needed, then open Step 3.</li>
+        <li>Step 3 (Reaction): press the mission’s reaction button (α, β⁻, γ, fission, fusion). Applications mission skips straight to Step 4.</li>
+        <li>Step 4 (Balance): the bottom bar updates after Step 3 (or immediately for Applications). Solve, then hit “Check &amp; Submit.”</li>
       </ul>
       <h2>Safety note</h2>
       <div class="muted">
@@ -426,6 +405,14 @@ const missions = [
   { id: "M6", title: "Applications decision", tag: "112.43(c)(14)(C)", desc: "Pick best use by penetration and charge.", type: "applications", start: { Z: 6, N: 8 } }
 ];
 const missionIcons = { alpha: "🛡️", beta: "⚡", gamma: "✨", fission: "☢️", fusion: "🔗", applications: "💡" };
+const reactionPrompts = {
+  alpha: "Open Step 3, press 🛡️ α, then balance in Step 4.",
+  beta: "Open Step 3, press ⚡ β⁻, then balance in Step 4.",
+  gamma: "Open Step 3, press ✨ γ, then balance in Step 4.",
+  fission: "Open Step 3, press ☢️, then balance U-235 fission in Step 4.",
+  fusion: "Open Step 3, press 🔗 to fuse, then balance in Step 4.",
+  applications: "Skip firing: open Step 3, then answer the application prompt in Step 4."
+};
 
 /* ---------- Game State ---------- */
 const state = {
@@ -441,6 +428,10 @@ const missionListEl = document.getElementById("missionList");
 const missionStatusEl = document.getElementById("missionStatus");
 const missionCard = document.getElementById("rightPanel");
 const missionToggleBtn = document.getElementById("missionToggle");
+
+function setMissionStatus(text) {
+  missionStatusEl.innerHTML = `<span class="muted">Next action</span>${text}`;
+}
 
 function addXP(delta) { state.xp = Math.max(0, state.xp + delta); document.getElementById("xpPill").textContent = `⭐ XP ${state.xp}`; }
 function addBadge() { state.badges += 1; document.getElementById("badgePill").textContent = `Badges ${state.badges}`; }
@@ -475,9 +466,19 @@ function setStepLevel(level) {
   s3.classList.toggle("locked", level < 3);
   const actionButtons = ["alphaBtn","betaBtn","gammaBtn","fissionBtn","fusionBtn"].map(id => document.getElementById(id));
   actionButtons.forEach(btn => btn.disabled = level < 3);
+  const mType = state.currentMission?.type;
   if (!state.currentMission) {
-    if (level < 2) missionStatusEl.textContent = "Step 1: Tap a mission chip to unlock the rest.";
-    if (level === 2) missionStatusEl.textContent = "Step 2: Nucleus loaded. Adjust if needed, then fire a reaction.";
+    if (level < 2) setMissionStatus("Step 1: Tap a mission chip (or stay Sandbox) to unlock Prep.");
+    else if (level === 2) setMissionStatus("Prep: confirm the nucleus, then open Step 3 to pick a reaction and Step 4 to balance.");
+    else setMissionStatus("Balance: use the Step 4 bar below to finish your equation.");
+  } else if (mType === "applications") {
+    if (level < 3) setMissionStatus("Applications mission: open Step 3, then complete the Step 4 prompt—no firing needed.");
+    else setMissionStatus("Answer the application prompt in Step 4, then submit.");
+  } else {
+    const prompt = reactionPrompts[mType] || "Open Step 3, fire the mission reaction, then balance in Step 4.";
+    const title = state.currentMission?.title || state.currentMission?.id || "";
+    if (level < 3) setMissionStatus(`Prep ${state.currentMission.id} · ${title}: ${prompt}`);
+    else setMissionStatus(`Balance ${state.currentMission.id} · ${title}: ${prompt}`);
   }
   setActiveStep(Math.min(activeStep, level));
 }
@@ -954,14 +955,14 @@ function startMission(mid) {
   const m = missions.find(x => x.id === mid);
   if (!m) return;
   state.currentMission = m;
-  missionStatusEl.textContent = `Active mission: ${m.title} (${m.tag}). ${m.desc}`;
 
   if (m.type === "fusion") { state.currentPair = m.start.pair; state.current = { Z: 0, N: 0 }; }
   else { state.currentPair = null; state.current = m.start; }
 
   setSceneToCurrent();
-  setStepLevel(2);
-  setActiveStep(2);
+  const nextLevel = m.type === "applications" ? 3 : 2;
+  setStepLevel(nextLevel);
+  setActiveStep(nextLevel);
 
   eqModel = null; lastEqReaction = null;
   eqEl.textContent = (m.type === "applications") ? "Complete the application choice below." : "Run the required reaction button, then balance the equation.";
@@ -1071,7 +1072,7 @@ function loadSandboxSelection() {
   eqEl.textContent = "Sandbox loaded. Run a reaction to generate an equation.";
   eqHintEl.textContent = "—"; feedbackEl.textContent = "";
   checkBtn.disabled = true; hintBtn.disabled = true;
-  missionStatusEl.textContent = "Sandbox mode. Select a mission if you want guided scaffolds and scoring.";
+  setMissionStatus("Sandbox mode. Select a mission if you want guided scaffolds and scoring.");
   setActionLocks(null);
 }
 
@@ -1150,7 +1151,7 @@ function setDefault() {
   updateMeters();
   renderMissions();
   setStepLevel(1);
-  missionStatusEl.textContent = "Start with Mission 1 or enter Sandbox.";
+  setMissionStatus("Step 1: Tap a mission chip (or stay Sandbox) to unlock Prep → Reaction → Balance.");
   showToast("Loaded. Begin with a mission chip.");
 }
 setDefault();
