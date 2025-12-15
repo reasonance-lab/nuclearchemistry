@@ -100,6 +100,10 @@
     .chip .dot.gamma { background: #9effff; box-shadow: 0 0 6px rgba(158,255,255,0.8); }
     .chip .dot.beta { background: #6fc2ff; box-shadow: 0 0 6px rgba(111,194,255,0.8); }
 
+    input[type=range] { width: 180px; cursor: pointer; padding: 0; background: none; }
+    input[type=range]::-webkit-slider-thumb { background: #9effff; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 0 8px rgba(158,255,255,0.7); }
+    input[type=range]::-moz-range-thumb { background: #9effff; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 0 8px rgba(158,255,255,0.7); }
+
     /* Mission panel */
     #missionList { max-height: 320px; overflow: auto; padding-right: 4px; display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
     .mission {
@@ -118,8 +122,9 @@
 
     /* Bottom bar */
     #bottomBar { position: absolute; inset: auto 14px 14px 14px; display: grid; grid-template-columns: 1fr; gap: 12px; pointer-events: none; }
-    #equationPanel { pointer-events: auto; }
-    #equation { font-size: 15px; line-height: 1.5; }
+    #equationPanel { pointer-events: auto; padding: 14px 16px; }
+    #equation { font-size: 18px; line-height: 1.65; color: #e9eefc; }
+    #equationPanel h1 { font-size: 17px; }
     .nuclide {
       display:inline-block; position: relative; padding-left: 22px; margin: 0 4px;
     }
@@ -269,6 +274,11 @@
         <button class="stepToggle" data-step="3">▼</button>
         <span class="stepHint">Press the mission’s reaction button, then solve the Step 4 equation bar below.</span>
         <div class="stepBody">
+          <div class="row" style="margin: 4px 0 10px 0; align-items: center;">
+            <span class="small muted" title="Slow down or speed up particle animation.">⏱️ Speed</span>
+            <input id="speedSlider" type="range" min="0.4" max="1.6" step="0.05" value="1" />
+            <span class="pill" id="speedValue">1.00×</span>
+          </div>
           <div class="row" style="margin-bottom: 10px;">
             <button id="alphaBtn" title="Alpha decay">🛡️ α</button>
             <button id="betaBtn" title="Beta minus">⚡ β⁻</button>
@@ -357,7 +367,7 @@
         <h1>Step 4 · ⚖️ Balance the nuclear equation</h1>
         <span class="pill" id="equationHint">—</span>
       </div>
-      <div id="equation" class="small muted">
+      <div id="equation">
         Start a mission or run a reaction to see an equation to balance.
       </div>
       <div class="row" style="margin-top: 10px;">
@@ -448,16 +458,24 @@ const state = {
   current: { Z: 6, N: 6 },
   currentPair: null,
   challenge: false,
-  stepLevel: 1
+  stepLevel: 1,
+  speedMultiplier: 1
 };
 let activeStep = 1;
 const missionListEl = document.getElementById("missionList");
 const missionStatusEl = document.getElementById("missionStatus");
 const missionCard = document.getElementById("rightPanel");
 const missionToggleBtn = document.getElementById("missionToggle");
+const speedSlider = document.getElementById("speedSlider");
+const speedValue = document.getElementById("speedValue");
 
 function setMissionStatus(text) {
   missionStatusEl.innerHTML = `<span class="muted">Next action</span>${text}`;
+}
+
+function syncSpeedUI() {
+  speedSlider.value = state.speedMultiplier;
+  speedValue.textContent = `${parseFloat(state.speedMultiplier).toFixed(2)}×`;
 }
 
 function addXP(delta) { state.xp = Math.max(0, state.xp + delta); document.getElementById("xpPill").textContent = `⭐ XP ${state.xp}`; }
@@ -587,25 +605,25 @@ function makeLabelSprite(text, color = "#e9eefc", bg = "linear-gradient(135deg, 
   ctx.quadraticCurveTo(rx, ry, rx + rad, ry);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = "rgba(158,255,255,0.75)"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.strokeStyle = "rgba(30,48,90,0.9)"; ctx.lineWidth = 3.6; ctx.stroke();
   ctx.fillStyle = grad; ctx.fill();
   ctx.font = "50px 'Segoe UI', 'Arial'";
   ctx.fillStyle = color;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.shadowColor = "rgba(158,255,255,0.8)";
-  ctx.shadowBlur = 16;
+  ctx.shadowColor = "rgba(158,255,255,0.9)";
+  ctx.shadowBlur = 18;
   ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 4);
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
   const sprite = new THREE.Sprite(spriteMat);
-  sprite.scale.set(2.0, 1.1, 1);
+  sprite.scale.set(2.35, 1.2, 1);
   labelCache.set(key, sprite);
   return sprite;
 }
 
-function attachLabel(obj, text, color = "#9effff", yOffset = 0.7) {
+function attachLabel(obj, text, color = "#9effff", yOffset = 0.9) {
   if (!text) return null;
   const sprite = makeLabelSprite(text, color);
   sprite.position.set(0, yOffset, 0);
@@ -724,39 +742,51 @@ function spawnParticle(material, start, end, scale=1.0, labelText="", labelColor
   return { mesh: m, start: start.clone(), end: end.clone() };
 }
 
+function scaled(base) {
+  const s = clamp(state.speedMultiplier || 1, 0.25, 2);
+  return base / s;
+}
+
 function startAnimation(kind) {
   while (extraGroup.children.length) extraGroup.remove(extraGroup.children[0]);
-  anim = { t: 0, mode: kind, payload: { particles: [], fragments: [] } };
+  anim = { t: 0, mode: kind, payload: { particles: [], fragments: [] }, durations: {}, speed: clamp(state.speedMultiplier || 1, 0.25, 2) };
   playWhoosh();
   if (kind === "alpha") {
+    anim.durations = { move: scaled(1.35), settle: scaled(1.65) };
     anim.payload.particles.push(
-      spawnParticle(protonMat, new THREE.Vector3(0,0,0), new THREE.Vector3(18,2.1,0.5), 1.25, "p⁺", "#ff8da3"),
-      spawnParticle(neutronMat, new THREE.Vector3(0.2,0.1,0), new THREE.Vector3(18.4,1.8,1.1), 1.25, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(-0.2,0.0,0), new THREE.Vector3(17.6,1.3,-0.9), 1.25, "n⁰", "#d6deed"),
-      spawnParticle(protonMat, new THREE.Vector3(0.1,-0.1,0), new THREE.Vector3(18.8,1.6,-0.5), 1.25, "p⁺", "#ff8da3")
+      spawnParticle(protonMat, new THREE.Vector3(0,0,0), new THREE.Vector3(26,2.6,0.8), 1.25, "p⁺", "#ff8da3"),
+      spawnParticle(neutronMat, new THREE.Vector3(0.2,0.1,0), new THREE.Vector3(26.5,2.2,1.3), 1.25, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(-0.2,0.0,0), new THREE.Vector3(25.6,1.7,-1.2), 1.25, "n⁰", "#d6deed"),
+      spawnParticle(protonMat, new THREE.Vector3(0.1,-0.1,0), new THREE.Vector3(27.2,2.0,-0.7), 1.25, "p⁺", "#ff8da3")
     );
   } else if (kind === "beta") {
-    anim.payload.particles.push(spawnParticle(glowMat, new THREE.Vector3(0,0,0), new THREE.Vector3(18, 1.1, 2.0), 0.9, "β⁻", "#6fc2ff"));
+    anim.durations = { move: scaled(1.35), settle: scaled(1.65) };
+    anim.payload.particles.push(spawnParticle(glowMat, new THREE.Vector3(0,0,0), new THREE.Vector3(26, 1.4, 2.8), 0.9, "β⁻", "#6fc2ff"));
   } else if (kind === "gamma") {
+    anim.durations = { move: scaled(1.35), settle: scaled(1.65) };
     const gMat = new THREE.MeshStandardMaterial({ color: 0x9effff, emissive: 0x2a9fb0, emissiveIntensity: 1.5 });
-    anim.payload.particles.push(spawnParticle(gMat, new THREE.Vector3(0,0,0), new THREE.Vector3(22, 0, 0), 0.7, "γ", "#9effff"));
+    anim.payload.particles.push(spawnParticle(gMat, new THREE.Vector3(0,0,0), new THREE.Vector3(30, 0.3, 0), 0.7, "γ", "#9effff"));
   } else if (kind === "fission") {
+    anim.durations = { move: scaled(1.6), settle: scaled(1.85), pulse: scaled(0.35) };
     showToast("Fission: nucleus splits + releases neutrons (conceptual).");
     anim.payload.particles.push(
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(-18, 1.1, 0.9), 1.0, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(18, -0.9, -0.7), 1.0, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(17, 0.6, 1.2), 1.0, "n⁰", "#d6deed")
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(-26, 1.6, 1.2), 1.0, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(26, -1.4, -1.1), 1.0, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(24.5, 0.9, 1.7), 1.0, "n⁰", "#d6deed")
     );
     const fragMat = new THREE.MeshStandardMaterial({ color: 0x9ed2ff, metalness: 0.35, roughness: 0.24, emissive: 0x123876, emissiveIntensity: 0.6 });
     const fragGeom = new THREE.SphereGeometry(0.9, 20, 20);
+    const fragAAnchor = new THREE.Object3D();
+    const fragBAnchor = new THREE.Object3D();
     const fragA = new THREE.Mesh(fragGeom, fragMat.clone());
     const fragB = new THREE.Mesh(fragGeom, fragMat.clone());
-    attachLabel(fragA, "Ba fragment", "#9effff");
-    attachLabel(fragB, "Kr fragment", "#9effff");
-    fragA.position.set(-0.1, 0, 0); fragB.position.set(0.1, 0, 0);
-    extraGroup.add(fragA); extraGroup.add(fragB);
-    anim.payload.fragments.push({ mesh: fragA, start: new THREE.Vector3(-0.1,0,0), end: new THREE.Vector3(-6.5, 0.6, 0.8) });
-    anim.payload.fragments.push({ mesh: fragB, start: new THREE.Vector3(0.1,0,0), end: new THREE.Vector3(6.5, -0.5, -0.8) });
+    fragAAnchor.position.set(-0.1, 0, 0); fragBAnchor.position.set(0.1, 0, 0);
+    fragAAnchor.add(fragA); fragBAnchor.add(fragB);
+    attachLabel(fragAAnchor, "Ba fragment", "#9effff", 1.3);
+    attachLabel(fragBAnchor, "Kr fragment", "#9effff", 1.3);
+    extraGroup.add(fragAAnchor); extraGroup.add(fragBAnchor);
+    anim.payload.fragments.push({ anchor: fragAAnchor, mesh: fragA, start: new THREE.Vector3(-0.1,0,0), end: new THREE.Vector3(-11.5, 0.9, 1.2) });
+    anim.payload.fragments.push({ anchor: fragBAnchor, mesh: fragB, start: new THREE.Vector3(0.1,0,0), end: new THREE.Vector3(11.5, -0.8, -1.1) });
     const flash = new THREE.Mesh(
       new THREE.SphereGeometry(1.8, 18, 18),
       new THREE.MeshBasicMaterial({ color: 0x9effff, transparent: true, opacity: 0.35 })
@@ -764,6 +794,7 @@ function startAnimation(kind) {
     extraGroup.add(flash);
     anim.payload.flash = flash;
   } else if (kind === "fusion") {
+    anim.durations = { move: scaled(1.6), settle: scaled(1.9) };
     showToast("Fusion: two nuclei merge (conceptual).");
   }
 }
@@ -776,7 +807,7 @@ function animateFrame(dt) {
   const t = anim.t;
   const p = anim.payload || {};
 
-  if (anim.mode === "fission" && t < 0.35) {
+  if (anim.mode === "fission" && t < (anim.durations.pulse ?? 0.35)) {
     const pulse = 1 + 0.08 * Math.sin(t * 22);
     nucleusGroup.scale.setScalar(pulse);
     nucleusGroup.rotation.y += 0.018;
@@ -785,16 +816,20 @@ function animateFrame(dt) {
   }
 
   if (anim.mode === "alpha" || anim.mode === "beta" || anim.mode === "gamma") {
-    const k = clamp(t / 1.35, 0, 1);
+    const moveDur = anim.durations.move ?? 1.35;
+    const settleDur = anim.durations.settle ?? 1.5;
+    const k = clamp(t / moveDur, 0, 1);
     for (const part of (p.particles || [])) part.mesh.position.lerpVectors(part.start, part.end, easeOutCubic(k));
-    if (k >= 1 && t > 1.5) anim.mode = "idle";
+    if (k >= 1 && t > settleDur) anim.mode = "idle";
   }
 
   if (anim.mode === "fission") {
-    const k = clamp(t / 1.6, 0, 1);
+    const moveDur = anim.durations.move ?? 1.6;
+    const settleDur = anim.durations.settle ?? 1.75;
+    const k = clamp(t / moveDur, 0, 1);
     for (const part of (p.particles || [])) part.mesh.position.lerpVectors(part.start, part.end, easeOutCubic(k));
     for (const frag of (p.fragments || [])) {
-      frag.mesh.position.lerpVectors(frag.start, frag.end, easeInOut(k));
+      frag.anchor.position.lerpVectors(frag.start, frag.end, easeInOut(k));
       frag.mesh.rotation.y += 0.04;
       frag.mesh.rotation.x += 0.025;
     }
@@ -802,18 +837,20 @@ function animateFrame(dt) {
       p.flash.material.opacity = Math.max(0, 0.35 * (1 - k));
       p.flash.scale.setScalar(1 + k * 1.4);
     }
-    if (k >= 1 && t > 1.75) anim.mode = "idle";
+    if (k >= 1 && t > settleDur) anim.mode = "idle";
   }
 
   if (anim.mode === "fusion") {
-    const k = clamp(t / 1.6, 0, 1);
+    const moveDur = anim.durations.move ?? 1.6;
+    const settleDur = anim.durations.settle ?? 1.7;
+    const k = clamp(t / moveDur, 0, 1);
     const left = nucleusGroup.children[0];
     const right = nucleusGroup.children[1];
     if (left && right) {
       left.position.lerpVectors(new THREE.Vector3(-2.4,0,0), new THREE.Vector3(-0.4,0,0), easeInOut(k));
       right.position.lerpVectors(new THREE.Vector3(2.4,0,0), new THREE.Vector3(0.4,0,0), easeInOut(k));
     }
-    if (k >= 1 && t > 1.7) anim.mode = "idle";
+    if (k >= 1 && t > settleDur) anim.mode = "idle";
   }
 }
 
@@ -902,6 +939,9 @@ function scoreResult(ok, msg) {
     state.energy += 25;
     state.safety = clamp(state.safety + 2, 0, 100);
     updateMeters();
+    if (eqModel?.kind === "fission") {
+      eqHintEl.textContent = "Balanced: U-235 + n → Ba-141 + Kr-92 + 3n";
+    }
     if (state.currentMission && !state.currentMission.completed) {
       state.currentMission.completed = true;
       addBadge();
@@ -1127,7 +1167,7 @@ function runFission() {
     setStepLevel(3);
     setActiveStep(3);
     startAnimation("fission");
-    setEquationForReaction({ kind: "fission", hint: "U-235 + n → Ba-141 + Kr-92 + 3n" });
+    setEquationForReaction({ kind: "fission", hint: "Fission: conserve A and Z; count the neutrons." });
     state.energy += 20; updateMeters();
   } else showToast("Load U-235 from Sandbox to run fission.");
 }
@@ -1167,6 +1207,11 @@ document.getElementById("loadSandboxBtn").addEventListener("click", loadSandboxS
 
 document.querySelectorAll(".stepToggle").forEach(btn => {
   btn.addEventListener("click", (e) => setActiveStep(parseInt(e.currentTarget.dataset.step, 10)));
+});
+
+speedSlider.addEventListener("input", (e) => {
+  state.speedMultiplier = parseFloat(e.target.value);
+  syncSpeedUI();
 });
 
 const sidebarBtn = document.getElementById("sidebarToggle");
@@ -1241,6 +1286,7 @@ function setDefault() {
   renderMissions();
   setStepLevel(1);
   setMissionStatus("Step 1: Tap a mission chip (or stay Sandbox) to unlock Prep → Reaction → Balance.");
+  syncSpeedUI();
   showToast("Loaded. Begin with a mission chip.");
 }
 setDefault();
