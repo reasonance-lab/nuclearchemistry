@@ -121,10 +121,11 @@
     .mission .actions { display:flex; gap:6px; flex-wrap: wrap; align-items:center; }
 
     /* Bottom bar */
-    #bottomBar { position: absolute; inset: auto 14px 14px 14px; display: grid; grid-template-columns: 1fr; gap: 12px; pointer-events: none; }
-    #equationPanel { pointer-events: auto; padding: 14px 16px; }
-    #equation { font-size: 18px; line-height: 1.65; color: #e9eefc; }
-    #equationPanel h1 { font-size: 17px; }
+    #bottomBar { position: absolute; inset: auto 14px 14px 14px; display: grid; grid-template-columns: 1fr; gap: 12px; pointer-events: none; justify-items:center; }
+    #equationPanel { pointer-events: auto; padding: 16px 18px; width: min(1100px, 96vw); display:flex; flex-direction:column; align-items:center; text-align:center; }
+    #equation { font-size: 20px; line-height: 1.7; color: #e9eefc; }
+    #equationPanel h1 { font-size: 18px; }
+    #equationPanel .row { justify-content:center; }
     .nuclide {
       display:inline-block; position: relative; padding-left: 22px; margin: 0 4px;
     }
@@ -276,8 +277,8 @@
         <div class="stepBody">
           <div class="row" style="margin: 4px 0 10px 0; align-items: center;">
             <span class="small muted" title="Slow down or speed up particle animation.">⏱️ Speed</span>
-            <input id="speedSlider" type="range" min="0.4" max="1.6" step="0.05" value="1" />
-            <span class="pill" id="speedValue">1.00×</span>
+            <input id="speedSlider" type="range" min="0.1" max="1.4" step="0.05" value="0.7" />
+            <span class="pill" id="speedValue">0.70×</span>
           </div>
           <div class="row" style="margin-bottom: 10px;">
             <button id="alphaBtn" title="Alpha decay">🛡️ α</button>
@@ -446,7 +447,7 @@ const reactionPrompts = {
   alpha: "Open Step 3, press 🛡️ α, then balance in Step 4.",
   beta: "Open Step 3, press ⚡ β⁻, then balance in Step 4.",
   gamma: "Open Step 3, press ✨ γ, then balance in Step 4.",
-  fission: "Open Step 3, press ☢️, then balance U-235 fission in Step 4.",
+  fission: "Slow n → U-236 (unstable) → Ba + Kr + 2–3n (≈200 MeV). Press ☢️ then balance.",
   fusion: "Open Step 3, press 🔗 to fuse, then balance in Step 4.",
   applications: "Skip firing: open Step 3, then answer the application prompt in Step 4."
 };
@@ -459,7 +460,7 @@ const state = {
   currentPair: null,
   challenge: false,
   stepLevel: 1,
-  speedMultiplier: 1
+  speedMultiplier: 0.7
 };
 let activeStep = 1;
 const missionListEl = document.getElementById("missionList");
@@ -574,6 +575,7 @@ scene.add(coreLight);
 
 const nucleusGroup = new THREE.Group(); scene.add(nucleusGroup);
 const extraGroup = new THREE.Group(); scene.add(extraGroup);
+let primaryLabelAnchor = null;
 
 const protonMat = new THREE.MeshStandardMaterial({ color: 0xff4766, roughness: 0.32, metalness: 0.08 });
 const neutronMat = new THREE.MeshStandardMaterial({ color: 0xc7d0df, roughness: 0.38, metalness: 0.08 });
@@ -586,13 +588,13 @@ function makeLabelSprite(text, color = "#e9eefc", bg = "linear-gradient(135deg, 
   const key = `${text}-${color}-${bg}`;
   if (labelCache.has(key)) return labelCache.get(key).clone();
   const canvas = document.createElement("canvas");
-  canvas.width = 360; canvas.height = 180;
+  canvas.width = 460; canvas.height = 220;
   const ctx = canvas.getContext("2d");
   const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
   grad.addColorStop(0, "rgba(18,210,255,0.12)");
   grad.addColorStop(1, "rgba(158,255,255,0.18)");
   ctx.fillStyle = bg;
-  const rx = 16, ry = 36, rw = canvas.width - 32, rh = 86, rad = 22;
+  const rx = 18, ry = 36, rw = canvas.width - 36, rh = 120, rad = 24;
   ctx.beginPath();
   ctx.moveTo(rx + rad, ry);
   ctx.lineTo(rx + rw - rad, ry);
@@ -607,18 +609,21 @@ function makeLabelSprite(text, color = "#e9eefc", bg = "linear-gradient(135deg, 
   ctx.fill();
   ctx.strokeStyle = "rgba(30,48,90,0.9)"; ctx.lineWidth = 3.6; ctx.stroke();
   ctx.fillStyle = grad; ctx.fill();
-  ctx.font = "50px 'Segoe UI', 'Arial'";
+  ctx.font = "42px 'Segoe UI', 'Arial'";
   ctx.fillStyle = color;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.shadowColor = "rgba(158,255,255,0.9)";
   ctx.shadowBlur = 18;
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 4);
+  const lines = text.split(/\n|\|/).map(s => s.trim()).filter(Boolean);
+  const lineH = 46;
+  const startY = canvas.height / 2 - ((lines.length - 1) * lineH) / 2;
+  lines.forEach((line, idx) => ctx.fillText(line, canvas.width / 2, startY + idx * lineH));
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
   const sprite = new THREE.Sprite(spriteMat);
-  sprite.scale.set(2.35, 1.2, 1);
+  sprite.scale.set(2.5, 1.35, 1);
   labelCache.set(key, sprite);
   return sprite;
 }
@@ -631,11 +636,18 @@ function attachLabel(obj, text, color = "#9effff", yOffset = 0.9) {
   return sprite;
 }
 
+function setPrimaryLabel(text, color = "#9effff", yOffset = 0.9) {
+  if (!primaryLabelAnchor) return;
+  while (primaryLabelAnchor.children.length) primaryLabelAnchor.remove(primaryLabelAnchor.children[0]);
+  attachLabel(primaryLabelAnchor, text, color, yOffset);
+}
+
 let anim = { t: 0, mode: "idle", payload: null };
 
 function clearGroups() {
   while (nucleusGroup.children.length) nucleusGroup.remove(nucleusGroup.children[0]);
   while (extraGroup.children.length) extraGroup.remove(extraGroup.children[0]);
+  primaryLabelAnchor = null;
 }
 
 function packPositions(count, radius) {
@@ -685,7 +697,8 @@ function buildSingleNucleus(Z, N) {
   const anchor = new THREE.Object3D();
   anchor.position.set(0, radius * 1.25 + 0.65, 0);
   nucleusGroup.add(anchor);
-  attachLabel(anchor, `${nuclideLabel(Z,N)} · Z=${Z} · A=${A}`, "#9effff", Math.max(1, radius * 0.8));
+  primaryLabelAnchor = anchor;
+  setPrimaryLabel(`${nuclideLabel(Z,N)}\nZ=${Z} · N=${N} · A=${A}`, "#9effff", Math.max(1, radius * 0.85));
 }
 
 function buildFusionPair(a, b) {
@@ -712,7 +725,7 @@ function buildFusionPair(a, b) {
     const anchor = new THREE.Object3D();
     anchor.position.set(0, r * 1.35 + 0.35, 0);
     g.add(anchor);
-    attachLabel(anchor, `${nuclideLabel(Z,N)} · Z=${Z} · A=${A}`, "#6fc2ff", Math.max(0.9, r * 0.8));
+    attachLabel(anchor, `${nuclideLabel(Z,N)}\nZ=${Z} · N=${N} · A=${A}`, "#6fc2ff", Math.max(0.9, r * 0.85));
   }
 
   populate(left, a.Z, a.N);
@@ -743,36 +756,37 @@ function spawnParticle(material, start, end, scale=1.0, labelText="", labelColor
 }
 
 function scaled(base) {
-  const s = clamp(state.speedMultiplier || 1, 0.25, 2);
+  const s = clamp(state.speedMultiplier || 0.7, 0.1, 1.4);
   return base / s;
 }
 
 function startAnimation(kind) {
   while (extraGroup.children.length) extraGroup.remove(extraGroup.children[0]);
-  anim = { t: 0, mode: kind, payload: { particles: [], fragments: [] }, durations: {}, speed: clamp(state.speedMultiplier || 1, 0.25, 2) };
+  anim = { t: 0, mode: kind, payload: { particles: [], fragments: [] }, durations: {}, speed: clamp(state.speedMultiplier || 0.7, 0.1, 1.4) };
   playWhoosh();
   if (kind === "alpha") {
-    anim.durations = { move: scaled(1.35), settle: scaled(1.65) };
+    anim.durations = { move: scaled(2.4), settle: scaled(2.6) };
     anim.payload.particles.push(
-      spawnParticle(protonMat, new THREE.Vector3(0,0,0), new THREE.Vector3(26,2.6,0.8), 1.25, "p⁺", "#ff8da3"),
-      spawnParticle(neutronMat, new THREE.Vector3(0.2,0.1,0), new THREE.Vector3(26.5,2.2,1.3), 1.25, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(-0.2,0.0,0), new THREE.Vector3(25.6,1.7,-1.2), 1.25, "n⁰", "#d6deed"),
-      spawnParticle(protonMat, new THREE.Vector3(0.1,-0.1,0), new THREE.Vector3(27.2,2.0,-0.7), 1.25, "p⁺", "#ff8da3")
+      spawnParticle(protonMat, new THREE.Vector3(0,0,0), new THREE.Vector3(14,2.2,0.8), 1.25, "p⁺", "#ff8da3"),
+      spawnParticle(neutronMat, new THREE.Vector3(0.2,0.1,0), new THREE.Vector3(14.4,2.0,1.1), 1.25, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(-0.2,0.0,0), new THREE.Vector3(13.5,1.4,-1.2), 1.25, "n⁰", "#d6deed"),
+      spawnParticle(protonMat, new THREE.Vector3(0.1,-0.1,0), new THREE.Vector3(15.0,1.6,-0.7), 1.25, "p⁺", "#ff8da3")
     );
   } else if (kind === "beta") {
-    anim.durations = { move: scaled(1.35), settle: scaled(1.65) };
-    anim.payload.particles.push(spawnParticle(glowMat, new THREE.Vector3(0,0,0), new THREE.Vector3(26, 1.4, 2.8), 0.9, "β⁻", "#6fc2ff"));
+    anim.durations = { move: scaled(2.2), settle: scaled(2.5) };
+    anim.payload.particles.push(spawnParticle(glowMat, new THREE.Vector3(0,0,0), new THREE.Vector3(13, 1.2, 2.1), 0.9, "β⁻", "#6fc2ff"));
   } else if (kind === "gamma") {
-    anim.durations = { move: scaled(1.35), settle: scaled(1.65) };
+    anim.durations = { move: scaled(2.0), settle: scaled(2.4) };
     const gMat = new THREE.MeshStandardMaterial({ color: 0x9effff, emissive: 0x2a9fb0, emissiveIntensity: 1.5 });
-    anim.payload.particles.push(spawnParticle(gMat, new THREE.Vector3(0,0,0), new THREE.Vector3(30, 0.3, 0), 0.7, "γ", "#9effff"));
+    anim.payload.particles.push(spawnParticle(gMat, new THREE.Vector3(0,0,0), new THREE.Vector3(12, 0.25, 0.2), 0.7, "γ", "#9effff"));
   } else if (kind === "fission") {
-    anim.durations = { move: scaled(1.6), settle: scaled(1.85), pulse: scaled(0.35) };
-    showToast("Fission: nucleus splits + releases neutrons (conceptual).");
+    anim.durations = { absorb: scaled(1.4), move: scaled(2.8), settle: scaled(2.9), pulse: scaled(0.55) };
+    showToast("Slow n makes U-235 → U-236 (unstable), splitting to Ba + Kr + 2–3 n.");
+    anim.payload.incoming = spawnParticle(neutronMat, new THREE.Vector3(9, 0.4, 0.2), new THREE.Vector3(0, 0, 0), 1.0, "n⁰", "#d6deed");
     anim.payload.particles.push(
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(-26, 1.6, 1.2), 1.0, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(26, -1.4, -1.1), 1.0, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(24.5, 0.9, 1.7), 1.0, "n⁰", "#d6deed")
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(-12, 1.3, 1.0), 1.0, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(12, -1.2, -0.9), 1.0, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(11.5, 0.8, 1.1), 1.0, "n⁰", "#d6deed")
     );
     const fragMat = new THREE.MeshStandardMaterial({ color: 0x9ed2ff, metalness: 0.35, roughness: 0.24, emissive: 0x123876, emissiveIntensity: 0.6 });
     const fragGeom = new THREE.SphereGeometry(0.9, 20, 20);
@@ -782,11 +796,11 @@ function startAnimation(kind) {
     const fragB = new THREE.Mesh(fragGeom, fragMat.clone());
     fragAAnchor.position.set(-0.1, 0, 0); fragBAnchor.position.set(0.1, 0, 0);
     fragAAnchor.add(fragA); fragBAnchor.add(fragB);
-    attachLabel(fragAAnchor, "Ba fragment", "#9effff", 1.3);
-    attachLabel(fragBAnchor, "Kr fragment", "#9effff", 1.3);
+    attachLabel(fragAAnchor, "Ba fragment", "#9effff", 1.2);
+    attachLabel(fragBAnchor, "Kr fragment", "#9effff", 1.2);
     extraGroup.add(fragAAnchor); extraGroup.add(fragBAnchor);
-    anim.payload.fragments.push({ anchor: fragAAnchor, mesh: fragA, start: new THREE.Vector3(-0.1,0,0), end: new THREE.Vector3(-11.5, 0.9, 1.2) });
-    anim.payload.fragments.push({ anchor: fragBAnchor, mesh: fragB, start: new THREE.Vector3(0.1,0,0), end: new THREE.Vector3(11.5, -0.8, -1.1) });
+    anim.payload.fragments.push({ anchor: fragAAnchor, mesh: fragA, start: new THREE.Vector3(-0.1,0,0), end: new THREE.Vector3(-8.5, 0.9, 0.9) });
+    anim.payload.fragments.push({ anchor: fragBAnchor, mesh: fragB, start: new THREE.Vector3(0.1,0,0), end: new THREE.Vector3(8.5, -0.8, -0.9) });
     const flash = new THREE.Mesh(
       new THREE.SphereGeometry(1.8, 18, 18),
       new THREE.MeshBasicMaterial({ color: 0x9effff, transparent: true, opacity: 0.35 })
@@ -794,7 +808,7 @@ function startAnimation(kind) {
     extraGroup.add(flash);
     anim.payload.flash = flash;
   } else if (kind === "fusion") {
-    anim.durations = { move: scaled(1.6), settle: scaled(1.9) };
+    anim.durations = { move: scaled(2.1), settle: scaled(2.2) };
     showToast("Fusion: two nuclei merge (conceptual).");
   }
 }
@@ -807,8 +821,10 @@ function animateFrame(dt) {
   const t = anim.t;
   const p = anim.payload || {};
 
-  if (anim.mode === "fission" && t < (anim.durations.pulse ?? 0.35)) {
-    const pulse = 1 + 0.08 * Math.sin(t * 22);
+  const pulseStart = anim.durations?.absorb ?? 0;
+  if (anim.mode === "fission" && (t - pulseStart) < (anim.durations.pulse ?? 0.55)) {
+    const localT = Math.max(0, t - pulseStart);
+    const pulse = 1 + 0.08 * Math.sin(localT * 18);
     nucleusGroup.scale.setScalar(pulse);
     nucleusGroup.rotation.y += 0.018;
   } else {
@@ -824,9 +840,17 @@ function animateFrame(dt) {
   }
 
   if (anim.mode === "fission") {
-    const moveDur = anim.durations.move ?? 1.6;
-    const settleDur = anim.durations.settle ?? 1.75;
-    const k = clamp(t / moveDur, 0, 1);
+    const absorbDur = anim.durations.absorb ?? 1.4;
+    const moveDur = anim.durations.move ?? 2.8;
+    const settleDur = anim.durations.settle ?? 2.9;
+    const kAbsorb = clamp(t / absorbDur, 0, 1);
+    if (p.incoming) p.incoming.mesh.position.lerpVectors(p.incoming.start, p.incoming.end, easeInOut(kAbsorb));
+    if (kAbsorb >= 1 && !p.absorbed) {
+      setPrimaryLabel("U-236 (unstable)\nZ=92 · N=144 · A=236", "#9effff", 1.1);
+      p.absorbed = true;
+    }
+    const phaseT = Math.max(0, t - absorbDur);
+    const k = clamp(phaseT / moveDur, 0, 1);
     for (const part of (p.particles || [])) part.mesh.position.lerpVectors(part.start, part.end, easeOutCubic(k));
     for (const frag of (p.fragments || [])) {
       frag.anchor.position.lerpVectors(frag.start, frag.end, easeInOut(k));
@@ -837,7 +861,7 @@ function animateFrame(dt) {
       p.flash.material.opacity = Math.max(0, 0.35 * (1 - k));
       p.flash.scale.setScalar(1 + k * 1.4);
     }
-    if (k >= 1 && t > settleDur) anim.mode = "idle";
+    if (k >= 1 && phaseT > settleDur) anim.mode = "idle";
   }
 
   if (anim.mode === "fusion") {
@@ -914,6 +938,7 @@ function setEquationForReaction(reaction) {
       `${nuclideSpan({Z:56,N:85})} + ${nuclideSpan({Z:36,N:56})} + ` +
       `<input class="blank" id="k_n" inputmode="numeric" placeholder="n?" />` +
       `<span class="nuclide"><span class="A">1</span><span class="Z">0</span><span class="sym">n</span></span>`;
+    eqHintEl.textContent = "U-235 absorbs a slow n to become unstable U-236, splitting into Ba-141 + Kr-92 + 2–3 neutrons (≈200 MeV).";
   } else if (kind === "applications") {
     eqModel = { kind, expected: {} };
     eqEl.innerHTML =
