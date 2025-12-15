@@ -850,6 +850,14 @@ function animateFrame(dt) {
       p.absorbed = true;
     }
     const phaseT = Math.max(0, t - absorbDur);
+    if (p.absorbed && !p.fragmentLabel && phaseT > 0.05) {
+      setPrimaryLabel("Ba-141 + Kr-92 + 2–3 n\n≈200 MeV released", "#9effff", 1.05);
+      if (p.incoming && !p.incoming.removed) {
+        extraGroup.remove(p.incoming.mesh);
+        p.incoming.removed = true;
+      }
+      p.fragmentLabel = true;
+    }
     const k = clamp(phaseT / moveDur, 0, 1);
     for (const part of (p.particles || [])) part.mesh.position.lerpVectors(part.start, part.end, easeOutCubic(k));
     for (const frag of (p.fragments || [])) {
