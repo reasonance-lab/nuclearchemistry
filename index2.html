@@ -23,7 +23,7 @@
     /* HUD */
     #hud {
       position: absolute; inset: 14px 14px auto 14px;
-      display: grid; grid-template-columns: minmax(280px, 34%) 1fr;
+      display: grid; grid-template-columns: minmax(280px, 36%) 1fr;
       gap: 12px;
       pointer-events: none;
     }
@@ -177,6 +177,31 @@
       pointer-events:none;
     }
     #particleLegend .chip { background: rgba(10,16,34,0.7); }
+
+    /* Mission control */
+    #rightPanel {
+      max-width: 420px;
+      width: min(40vw, 420px);
+      align-self: start;
+    }
+    #missionCardHeader { align-items: center; }
+    #missionToggle {
+      border-radius: 10px;
+      width: 32px; height: 32px;
+      display:flex; align-items:center; justify-content:center;
+      padding: 0;
+    }
+    #rightPanel.collapsed .missionBody { display: none; }
+    #missionStatus { margin-top: 2px; }
+    #missionMeters {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 180px;
+    }
+    #missionMeters .kv { grid-template-columns: 1fr; }
+    #missionMeters .k { font-size: 11px; }
+    #missionMeters .v { font-size: 16px; }
   </style>
 </head>
 <body>
@@ -268,32 +293,45 @@
     </div>
 
     <div class="panel" id="rightPanel">
-      <div class="titleRow">
-        <h1>Mission Control</h1>
-        <span class="pill" id="badgePill">Badges 0</span>
-      </div>
-
-      <div class="small" id="missionStatus">
-        Select a mission. Use the action buttons to perform the reaction, then balance the equation.
-      </div>
-
-      <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 10px 0;" />
-
-      <div class="kv">
-        <div>
-          <div class="k">Energy Meter</div>
-          <div class="v" id="energyReadout">0</div>
+      <div class="titleRow" id="missionCardHeader">
+        <div class="row" style="align-items:center; gap: 6px;">
+          <h1 style="margin-bottom:2px;">Mission Control</h1>
+          <span class="pill" id="badgePill">Badges 0</span>
         </div>
-        <div>
-          <div class="k">Safety Meter</div>
-          <div class="v" id="safetyReadout">100</div>
-        </div>
+        <button id="missionToggle" title="Collapse Mission Control">▾</button>
       </div>
 
-      <div style="height: 10px;"></div>
+      <div class="missionBody">
+        <div class="small" id="missionStatus" style="line-height:1.4;">
+          Select a mission. Use the action buttons to perform the reaction, then balance the equation.
+        </div>
 
-      <div class="small muted">
-        Scoring: +XP for correct balancing; +Energy for correct reaction type; Safety drops if you try the wrong reaction for a mission.
+        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.12); margin: 8px 0;" />
+
+        <div class="row" style="align-items:flex-start; justify-content:space-between; gap:10px;">
+          <div id="missionMeters">
+            <div class="kv">
+              <div>
+                <div class="k">Energy meter</div>
+                <div class="v" id="energyReadout">0</div>
+              </div>
+              <div>
+                <div class="k">Safety meter</div>
+                <div class="v" id="safetyReadout">100</div>
+              </div>
+            </div>
+          </div>
+          <div class="small muted" style="max-width: 240px;">
+            Scoring: +XP for correct balancing; +Energy for correct reaction type; Safety drops if you try the wrong reaction for a mission.
+          </div>
+        </div>
+
+        <div class="chipRow" style="margin-top:8px;">
+          <span class="chip"><span class="dot proton"></span>Proton (p⁺)</span>
+          <span class="chip"><span class="dot neutron"></span>Neutron (n⁰)</span>
+          <span class="chip"><span class="dot beta"></span>β⁻ particle</span>
+          <span class="chip"><span class="dot gamma"></span>γ photon</span>
+        </div>
       </div>
 
       <div class="chipRow" style="margin-top:10px;">
@@ -401,6 +439,8 @@ const state = {
 let activeStep = 1;
 const missionListEl = document.getElementById("missionList");
 const missionStatusEl = document.getElementById("missionStatus");
+const missionCard = document.getElementById("rightPanel");
+const missionToggleBtn = document.getElementById("missionToggle");
 
 function addXP(delta) { state.xp = Math.max(0, state.xp + delta); document.getElementById("xpPill").textContent = `⭐ XP ${state.xp}`; }
 function addBadge() { state.badges += 1; document.getElementById("badgePill").textContent = `Badges ${state.badges}`; }
@@ -1053,6 +1093,12 @@ sidebarBtn.addEventListener("click", () => {
   const left = document.getElementById("leftPanel");
   const collapsed = left.classList.toggle("collapsed");
   sidebarBtn.textContent = collapsed ? "⏵" : "⏴";
+});
+
+missionToggleBtn.addEventListener("click", () => {
+  const collapsed = missionCard.classList.toggle("collapsed");
+  missionToggleBtn.textContent = collapsed ? "▸" : "▾";
+  missionToggleBtn.title = collapsed ? "Expand Mission Control" : "Collapse Mission Control";
 });
 
 document.getElementById("resetBtn").addEventListener("click", () => {
