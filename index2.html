@@ -463,32 +463,33 @@ function setStepLevel(level) {
   const s2 = document.getElementById("step2");
   const s3 = document.getElementById("step3");
   s2.classList.toggle("locked", level < 2);
-  s3.classList.toggle("locked", level < 3);
+  s3.classList.toggle("locked", level < 2);
   const actionButtons = ["alphaBtn","betaBtn","gammaBtn","fissionBtn","fusionBtn"].map(id => document.getElementById(id));
-  actionButtons.forEach(btn => btn.disabled = level < 3);
+  actionButtons.forEach(btn => btn.disabled = level < 2);
   const mType = state.currentMission?.type;
   if (!state.currentMission) {
     if (level < 2) setMissionStatus("Step 1: Tap a mission chip (or stay Sandbox) to unlock Prep.");
-    else if (level === 2) setMissionStatus("Prep: confirm the nucleus, then open Step 3 to pick a reaction and Step 4 to balance.");
+    else if (level === 2) setMissionStatus("Prep: confirm the nucleus, then use Step 3 reaction buttons and Step 4 to balance.");
     else setMissionStatus("Balance: use the Step 4 bar below to finish your equation.");
   } else if (mType === "applications") {
-    if (level < 3) setMissionStatus("Applications mission: open Step 3, then complete the Step 4 prompt—no firing needed.");
+    if (level < 3) setMissionStatus("Applications mission: Step 3 is open; complete the Step 4 prompt—no firing needed.");
     else setMissionStatus("Answer the application prompt in Step 4, then submit.");
   } else {
     const prompt = reactionPrompts[mType] || "Open Step 3, fire the mission reaction, then balance in Step 4.";
     const title = state.currentMission?.title || state.currentMission?.id || "";
-    if (level < 3) setMissionStatus(`Prep ${state.currentMission.id} · ${title}: ${prompt}`);
+    if (level < 3) setMissionStatus(`Prep ${state.currentMission.id} · ${title}: Step 3 reaction is live—${prompt}`);
     else setMissionStatus(`Balance ${state.currentMission.id} · ${title}: ${prompt}`);
   }
   setActiveStep(Math.min(activeStep, level));
 }
 
 function setActiveStep(step) {
-  if (step > state.stepLevel) return;
+  const unlockedMax = state.stepLevel >= 2 ? 3 : state.stepLevel;
+  if (step > unlockedMax) return;
   activeStep = step;
   ["step1","step2","step3"].forEach((id, idx) => {
     const card = document.getElementById(id);
-    const unlocked = idx + 1 <= state.stepLevel;
+    const unlocked = idx + 1 <= unlockedMax;
     card.classList.toggle("active", unlocked && (idx + 1 === activeStep));
   });
 }
@@ -930,7 +931,7 @@ function setActionLocks(type) {
 
   [alphaBtn,betaBtn,gammaBtn,fissionBtn,fusionBtn].forEach(b => b.disabled = false);
 
-  if (state.stepLevel < 3) {
+  if (state.stepLevel < 2) {
     [alphaBtn,betaBtn,gammaBtn,fissionBtn,fusionBtn].forEach(b => b.disabled = true);
     return;
   }
