@@ -15,7 +15,7 @@
 </script>
 
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; background: #0b1020; color: #e9eefc; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    html, body { margin: 0; padding: 0; height: 100%; background: radial-gradient(circle at 20% 20%, rgba(86,130,255,0.16), transparent 36%), radial-gradient(circle at 80% 40%, rgba(140,255,255,0.10), transparent 44%), #050914; color: #e9eefc; font-family: "Segoe UI", "Orbitron", system-ui, -apple-system, Roboto, Arial, sans-serif; letter-spacing: 0.1px; }
     #app { position: relative; height: 100%; overflow: hidden; }
     #canvasWrap { position: absolute; inset: 0; }
     canvas { display: block; }
@@ -34,31 +34,32 @@
     }
 
     .panel {
-      background: rgba(10, 16, 34, 0.62);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 14px;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.35);
-      backdrop-filter: blur(10px) saturate(120%);
+      background: linear-gradient(135deg, rgba(12,22,44,0.82), rgba(9,16,32,0.82));
+      border: 1px solid rgba(112, 199, 255, 0.24);
+      border-radius: 16px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.45), 0 0 18px rgba(111,194,255,0.18);
+      backdrop-filter: blur(12px) saturate(125%);
       padding: 10px 12px;
       pointer-events: auto;
     }
     .stepCard {
-      border: 1px dashed rgba(255,255,255,0.18);
+      border: 1px dashed rgba(158,255,255,0.26);
       border-radius: 12px;
       padding: 10px;
       margin-bottom: 8px;
       background: rgba(255,255,255,0.03);
       position: relative;
-      transition: border-color 160ms ease, background 160ms ease;
+      transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+      box-shadow: inset 0 0 0 1px rgba(111,194,255,0.06);
     }
     .stepCard.locked { opacity: 0.55; }
-    .stepCard.active { border-color: rgba(158,255,255,0.6); background: rgba(110, 194, 255, 0.08); }
+    .stepCard.active { border-color: rgba(158,255,255,0.7); background: rgba(110, 194, 255, 0.10); box-shadow: 0 0 18px rgba(111,194,255,0.16), inset 0 0 0 1px rgba(158,255,255,0.25); }
     .stepLabel {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 12px; letter-spacing: 0.2px; text-transform: uppercase;
       padding: 4px 8px; border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.04);
+      background: linear-gradient(120deg, rgba(111,194,255,0.18), rgba(255,255,255,0.04));
     }
     .stepLabel .icon { font-size: 14px; }
     .stepHint { font-size: 12px; opacity: 0.82; margin: 6px 0 8px 0; display: block; }
@@ -79,7 +80,7 @@
       cursor: pointer;
       outline: none;
     }
-    button:hover { background: rgba(255,255,255,0.10); }
+    button:hover { background: rgba(111,194,255,0.16); border-color: rgba(158,255,255,0.3); }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
     input { cursor: text; width: 72px; }
     select { cursor: pointer; }
@@ -213,6 +214,7 @@
   <div id="toast"></div>
 
   <button id="sidebarToggle" title="Hide or show controls">⏴</button>
+  <button id="soundToggle" title="Toggle sci‑fi sound" style="position:absolute; left:50px; top:10px; z-index:2;">🔊</button>
 
   <div id="hud">
     <div class="panel" id="leftPanel">
@@ -389,6 +391,31 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2200);
 }
 
+/* ---------- Sound ---------- */
+let audioCtx = null;
+let soundOn = true;
+const soundToggleBtn = () => document.getElementById("soundToggle");
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playTone(freq = 420, duration = 0.12, type = "sine", gain = 0.12) {
+  if (!soundOn) return;
+  ensureAudio();
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.frequency.value = freq;
+  osc.type = type;
+  g.gain.value = gain;
+  osc.connect(g).connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playClick() { playTone(560, 0.08, "triangle", 0.14); }
+function playWhoosh() { playTone(220, 0.24, "sawtooth", 0.10); }
+
 function nuclideLabel(Z, N) {
   const A = Z + N;
   const sym = periodic[Z] ?? `Z${Z}`;
@@ -537,14 +564,17 @@ const particleGeom = new THREE.SphereGeometry(0.18, 18, 18);
 const nucleonGeom = new THREE.SphereGeometry(0.28, 18, 18);
 const labelCache = new Map();
 
-function makeLabelSprite(text, color = "#e9eefc", bg = "rgba(18,32,64,0.9)") {
+function makeLabelSprite(text, color = "#e9eefc", bg = "linear-gradient(135deg, rgba(8,18,42,0.95), rgba(20,46,94,0.85))") {
   const key = `${text}-${color}-${bg}`;
   if (labelCache.has(key)) return labelCache.get(key).clone();
   const canvas = document.createElement("canvas");
-  canvas.width = 256; canvas.height = 128;
+  canvas.width = 360; canvas.height = 180;
   const ctx = canvas.getContext("2d");
+  const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grad.addColorStop(0, "rgba(18,210,255,0.12)");
+  grad.addColorStop(1, "rgba(158,255,255,0.18)");
   ctx.fillStyle = bg;
-  const rx = 10, ry = 36, rw = canvas.width - 20, rh = 56, rad = 18;
+  const rx = 16, ry = 36, rw = canvas.width - 32, rh = 86, rad = 22;
   ctx.beginPath();
   ctx.moveTo(rx + rad, ry);
   ctx.lineTo(rx + rw - rad, ry);
@@ -557,25 +587,28 @@ function makeLabelSprite(text, color = "#e9eefc", bg = "rgba(18,32,64,0.9)") {
   ctx.quadraticCurveTo(rx, ry, rx + rad, ry);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.stroke();
-  ctx.font = "42px 'Inter', 'Arial'";
+  ctx.strokeStyle = "rgba(158,255,255,0.75)"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.font = "50px 'Segoe UI', 'Arial'";
   ctx.fillStyle = color;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 10);
+  ctx.shadowColor = "rgba(158,255,255,0.8)";
+  ctx.shadowBlur = 16;
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 4);
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
   const sprite = new THREE.Sprite(spriteMat);
-  sprite.scale.set(1.2, 0.6, 1);
+  sprite.scale.set(2.0, 1.1, 1);
   labelCache.set(key, sprite);
   return sprite;
 }
 
-function attachLabel(obj, text, color = "#9effff") {
+function attachLabel(obj, text, color = "#9effff", yOffset = 0.7) {
   if (!text) return null;
   const sprite = makeLabelSprite(text, color);
-  sprite.position.set(0, 0.55, 0);
+  sprite.position.set(0, yOffset, 0);
   obj.add(sprite);
   return sprite;
 }
@@ -632,9 +665,9 @@ function buildSingleNucleus(Z, N) {
   const core = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.35, 18, 18), new THREE.MeshBasicMaterial({ color: 0x9effff, transparent:true, opacity:0.35 }));
   nucleusGroup.add(core);
   const anchor = new THREE.Object3D();
-  anchor.position.set(0, radius * 1.25 + 0.45, 0);
+  anchor.position.set(0, radius * 1.25 + 0.65, 0);
   nucleusGroup.add(anchor);
-  attachLabel(anchor, `${nuclideLabel(Z,N)} | Z=${Z}`, "#9effff");
+  attachLabel(anchor, `${nuclideLabel(Z,N)} · Z=${Z} · A=${A}`, "#9effff", Math.max(1, radius * 0.8));
 }
 
 function buildFusionPair(a, b) {
@@ -661,7 +694,7 @@ function buildFusionPair(a, b) {
     const anchor = new THREE.Object3D();
     anchor.position.set(0, r * 1.35 + 0.35, 0);
     g.add(anchor);
-    attachLabel(anchor, `${nuclideLabel(Z,N)} | Z=${Z}`, "#6fc2ff");
+    attachLabel(anchor, `${nuclideLabel(Z,N)} · Z=${Z} · A=${A}`, "#6fc2ff", Math.max(0.9, r * 0.8));
   }
 
   populate(left, a.Z, a.N);
@@ -693,26 +726,43 @@ function spawnParticle(material, start, end, scale=1.0, labelText="", labelColor
 
 function startAnimation(kind) {
   while (extraGroup.children.length) extraGroup.remove(extraGroup.children[0]);
-  anim = { t: 0, mode: kind, payload: { particles: [] } };
+  anim = { t: 0, mode: kind, payload: { particles: [], fragments: [] } };
+  playWhoosh();
   if (kind === "alpha") {
     anim.payload.particles.push(
-      spawnParticle(protonMat, new THREE.Vector3(0,0,0), new THREE.Vector3(4,1.2,0), 1.25, "p⁺", "#ff8da3"),
-      spawnParticle(neutronMat, new THREE.Vector3(0.2,0.1,0), new THREE.Vector3(4.4,1.0,0.2), 1.25, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(-0.2,0.0,0), new THREE.Vector3(4.2,0.9,-0.2), 1.25, "n⁰", "#d6deed"),
-      spawnParticle(protonMat, new THREE.Vector3(0.1,-0.1,0), new THREE.Vector3(4.6,1.1,-0.1), 1.25, "p⁺", "#ff8da3")
+      spawnParticle(protonMat, new THREE.Vector3(0,0,0), new THREE.Vector3(18,2.1,0.5), 1.25, "p⁺", "#ff8da3"),
+      spawnParticle(neutronMat, new THREE.Vector3(0.2,0.1,0), new THREE.Vector3(18.4,1.8,1.1), 1.25, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(-0.2,0.0,0), new THREE.Vector3(17.6,1.3,-0.9), 1.25, "n⁰", "#d6deed"),
+      spawnParticle(protonMat, new THREE.Vector3(0.1,-0.1,0), new THREE.Vector3(18.8,1.6,-0.5), 1.25, "p⁺", "#ff8da3")
     );
   } else if (kind === "beta") {
-    anim.payload.particles.push(spawnParticle(glowMat, new THREE.Vector3(0,0,0), new THREE.Vector3(4, 0.5, 0.8), 0.9, "β⁻", "#6fc2ff"));
+    anim.payload.particles.push(spawnParticle(glowMat, new THREE.Vector3(0,0,0), new THREE.Vector3(18, 1.1, 2.0), 0.9, "β⁻", "#6fc2ff"));
   } else if (kind === "gamma") {
     const gMat = new THREE.MeshStandardMaterial({ color: 0x9effff, emissive: 0x2a9fb0, emissiveIntensity: 1.5 });
-    anim.payload.particles.push(spawnParticle(gMat, new THREE.Vector3(0,0,0), new THREE.Vector3(5, 0, 0), 0.7, "γ", "#9effff"));
+    anim.payload.particles.push(spawnParticle(gMat, new THREE.Vector3(0,0,0), new THREE.Vector3(22, 0, 0), 0.7, "γ", "#9effff"));
   } else if (kind === "fission") {
     showToast("Fission: nucleus splits + releases neutrons (conceptual).");
     anim.payload.particles.push(
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(-5, 0.6, 0.2), 1.0, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(5, -0.3, -0.1), 1.0, "n⁰", "#d6deed"),
-      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(3.6, 0.2, 0.6), 1.0, "n⁰", "#d6deed")
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(-18, 1.1, 0.9), 1.0, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(18, -0.9, -0.7), 1.0, "n⁰", "#d6deed"),
+      spawnParticle(neutronMat, new THREE.Vector3(0,0,0), new THREE.Vector3(17, 0.6, 1.2), 1.0, "n⁰", "#d6deed")
     );
+    const fragMat = new THREE.MeshStandardMaterial({ color: 0x9ed2ff, metalness: 0.35, roughness: 0.24, emissive: 0x123876, emissiveIntensity: 0.6 });
+    const fragGeom = new THREE.SphereGeometry(0.9, 20, 20);
+    const fragA = new THREE.Mesh(fragGeom, fragMat.clone());
+    const fragB = new THREE.Mesh(fragGeom, fragMat.clone());
+    attachLabel(fragA, "Ba fragment", "#9effff");
+    attachLabel(fragB, "Kr fragment", "#9effff");
+    fragA.position.set(-0.1, 0, 0); fragB.position.set(0.1, 0, 0);
+    extraGroup.add(fragA); extraGroup.add(fragB);
+    anim.payload.fragments.push({ mesh: fragA, start: new THREE.Vector3(-0.1,0,0), end: new THREE.Vector3(-6.5, 0.6, 0.8) });
+    anim.payload.fragments.push({ mesh: fragB, start: new THREE.Vector3(0.1,0,0), end: new THREE.Vector3(6.5, -0.5, -0.8) });
+    const flash = new THREE.Mesh(
+      new THREE.SphereGeometry(1.8, 18, 18),
+      new THREE.MeshBasicMaterial({ color: 0x9effff, transparent: true, opacity: 0.35 })
+    );
+    extraGroup.add(flash);
+    anim.payload.flash = flash;
   } else if (kind === "fusion") {
     showToast("Fusion: two nuclei merge (conceptual).");
   }
@@ -726,10 +776,33 @@ function animateFrame(dt) {
   const t = anim.t;
   const p = anim.payload || {};
 
+  if (anim.mode === "fission" && t < 0.35) {
+    const pulse = 1 + 0.08 * Math.sin(t * 22);
+    nucleusGroup.scale.setScalar(pulse);
+    nucleusGroup.rotation.y += 0.018;
+  } else {
+    nucleusGroup.scale.lerp(new THREE.Vector3(1,1,1), 0.12);
+  }
+
   if (anim.mode === "alpha" || anim.mode === "beta" || anim.mode === "gamma") {
-    const k = clamp(t / 1.2, 0, 1);
+    const k = clamp(t / 1.35, 0, 1);
     for (const part of (p.particles || [])) part.mesh.position.lerpVectors(part.start, part.end, easeOutCubic(k));
-    if (k >= 1 && t > 1.35) anim.mode = "idle";
+    if (k >= 1 && t > 1.5) anim.mode = "idle";
+  }
+
+  if (anim.mode === "fission") {
+    const k = clamp(t / 1.6, 0, 1);
+    for (const part of (p.particles || [])) part.mesh.position.lerpVectors(part.start, part.end, easeOutCubic(k));
+    for (const frag of (p.fragments || [])) {
+      frag.mesh.position.lerpVectors(frag.start, frag.end, easeInOut(k));
+      frag.mesh.rotation.y += 0.04;
+      frag.mesh.rotation.x += 0.025;
+    }
+    if (p.flash) {
+      p.flash.material.opacity = Math.max(0, 0.35 * (1 - k));
+      p.flash.scale.setScalar(1 + k * 1.4);
+    }
+    if (k >= 1 && t > 1.75) anim.mode = "idle";
   }
 
   if (anim.mode === "fusion") {
@@ -955,6 +1028,7 @@ function setActionLocks(type) {
 function startMission(mid) {
   const m = missions.find(x => x.id === mid);
   if (!m) return;
+  playClick();
   state.currentMission = m;
 
   if (m.type === "fusion") { state.currentPair = m.start.pair; state.current = { Z: 0, N: 0 }; }
@@ -986,6 +1060,7 @@ function ensureMissionMatch(kind) {
 }
 
 function runAlpha() {
+  playClick();
   if (!state.currentPair && state.current.Z >= 2 && state.current.N >= 2) {
     if (!ensureMissionMatch("alpha")) return;
     const before = { ...state.current };
@@ -1001,6 +1076,7 @@ function runAlpha() {
 }
 
 function runBeta() {
+  playClick();
   if (!state.currentPair && state.current.N >= 1) {
     if (!ensureMissionMatch("beta")) return;
     const before = { ...state.current };
@@ -1016,6 +1092,7 @@ function runBeta() {
 }
 
 function runGamma() {
+  playClick();
   if (!state.currentPair) {
     if (!ensureMissionMatch("gamma")) return;
     const before = { ...state.current };
@@ -1028,6 +1105,7 @@ function runGamma() {
 }
 
 function runFusion() {
+  playClick();
   if (state.currentPair) {
     if (!ensureMissionMatch("fusion")) return;
     const r = doFusion(state.currentPair);
@@ -1043,6 +1121,7 @@ function runFusion() {
 }
 
 function runFission() {
+  playClick();
   if (!state.currentPair && state.current.Z === 92) {
     if (!ensureMissionMatch("fission")) return;
     setStepLevel(3);
@@ -1095,6 +1174,15 @@ sidebarBtn.addEventListener("click", () => {
   const left = document.getElementById("leftPanel");
   const collapsed = left.classList.toggle("collapsed");
   sidebarBtn.textContent = collapsed ? "⏵" : "⏴";
+  playClick();
+});
+
+const soundBtn = document.getElementById("soundToggle");
+soundBtn.addEventListener("click", () => {
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊" : "🔇";
+  soundBtn.title = soundOn ? "Sound on" : "Sound muted";
+  playClick();
 });
 
 missionToggleBtn.addEventListener("click", () => {
