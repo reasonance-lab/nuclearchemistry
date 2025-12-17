@@ -2569,7 +2569,7 @@ const levelContent = {
         </div>
       </div>
 
-      <div class="lesson-card text-center">
+      <div class="lesson-card text-center" id="l5-congrats" style="display:none;">
         <h2>🎓 Congratulations!</h2>
         <p>You've completed the Nuclear Reactions curriculum aligned with Texas TEKS standards!</p>
         <div class="checkpoint-badge" style="display:inline-flex; margin-top:12px;">
@@ -2808,6 +2808,15 @@ window.checkQuiz = function(level) {
     addXP(25);
     playSound('success');
     checkBtn.disabled = true;
+
+    // Show Level 5 congratulations card when quiz is answered correctly
+    if (level === 5) {
+      const congratsCard = document.getElementById('l5-congrats');
+      if (congratsCard) {
+        congratsCard.style.display = 'block';
+        congratsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
 
     // Mark level complete after short delay
     setTimeout(() => completeLevel(level), 1500);
