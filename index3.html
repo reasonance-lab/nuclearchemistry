@@ -798,6 +798,191 @@ html, body {
   color: var(--text-secondary);
 }
 
+/* Certificate Modal */
+.certificate-modal {
+  text-align: center;
+}
+
+.certificate {
+  background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 50%, #fef3c7 100%);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.certificate-border {
+  border: 3px solid #b45309;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.certificate-inner {
+  border: 1px solid #d97706;
+  border-radius: 2px;
+  padding: 30px 40px;
+  position: relative;
+}
+
+.certificate-ribbon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.certificate-title {
+  font-family: 'Georgia', serif;
+  font-size: 1.8rem;
+  color: #78350f;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.certificate-divider {
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #b45309, transparent);
+  margin: 15px auto;
+}
+
+.certificate-text {
+  font-size: 0.9rem;
+  color: #44403c;
+  margin: 10px 0;
+}
+
+.certificate-course {
+  font-family: 'Georgia', serif;
+  font-size: 1.4rem;
+  color: #1e3a8a;
+  margin: 15px 0 5px;
+}
+
+.certificate-subtitle {
+  font-size: 0.8rem;
+  color: #57534e;
+  font-style: italic;
+}
+
+.certificate-badges {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+  font-size: 1.8rem;
+}
+
+.certificate-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #d6d3d1;
+}
+
+.certificate-date {
+  font-size: 0.8rem;
+  color: #57534e;
+}
+
+.certificate-seal {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #b45309;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #b45309;
+}
+
+/* About Modal */
+.about-modal {
+  max-width: 350px !important;
+}
+
+.about-icon {
+  font-size: 3.5rem;
+  margin-bottom: 10px;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.5)); }
+  50% { filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.8)); }
+}
+
+.about-divider {
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+  margin: 15px auto;
+  border-radius: 2px;
+}
+
+.about-text {
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.about-credits {
+  margin: 25px 0;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.about-credits p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.about-author {
+  font-size: 1.2rem !important;
+  font-weight: 600;
+  color: var(--text-primary) !important;
+  margin: 8px 0 !important;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.about-year {
+  font-size: 0.9rem !important;
+  color: var(--text-secondary) !important;
+}
+
+/* About Button */
+#about-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 70px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+#about-btn:hover {
+  background: var(--accent-cyan);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+}
+
 /* Builder Mode */
 .builder-controls {
   display: grid;
@@ -1019,6 +1204,7 @@ input:focus:not(:focus-visible) {
     <div id="canvas-container"></div>
 
     <button id="sound-toggle" title="Toggle Sound">🔊</button>
+    <button id="about-btn" title="About" onclick="document.getElementById('about-modal').classList.add('show')">ℹ️</button>
 
     <div class="canvas-overlay" id="top-bar">
       <div class="floating-panel nucleus-info" id="nucleus-info">
@@ -1077,6 +1263,49 @@ input:focus:not(:focus-visible) {
   </div>
 </div>
 
+<!-- Certificate Modal -->
+<div class="modal-overlay" id="certificate-modal">
+  <div class="certificate-modal">
+    <div class="certificate">
+      <div class="certificate-border">
+        <div class="certificate-inner">
+          <div class="certificate-ribbon">🏆</div>
+          <h1 class="certificate-title">Certificate of Completion</h1>
+          <div class="certificate-divider"></div>
+          <p class="certificate-text">This certifies that the student has successfully completed</p>
+          <h2 class="certificate-course">Nuclear Reactions Laboratory</h2>
+          <p class="certificate-subtitle">Texas TEKS Chemistry - Interactive Learning</p>
+          <div class="certificate-badges">
+            <span>🔬</span><span>☢️</span><span>⚖️</span><span>⚡</span><span>🏆</span>
+          </div>
+          <p class="certificate-text">demonstrating mastery of nuclear chemistry concepts including radioactive decay, nuclear equations, fission, fusion, and real-world applications.</p>
+          <div class="certificate-footer">
+            <div class="certificate-date" id="cert-date"></div>
+            <div class="certificate-seal">✦</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="document.getElementById('certificate-modal').classList.remove('show')">Close Certificate</button>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div class="modal-overlay" id="about-modal">
+  <div class="modal about-modal">
+    <div class="about-icon">⚛️</div>
+    <h2>Nuclear Reactions Lab</h2>
+    <div class="about-divider"></div>
+    <p class="about-text">An interactive educational simulation for learning nuclear chemistry concepts aligned with Texas TEKS standards.</p>
+    <div class="about-credits">
+      <p>Developed by</p>
+      <p class="about-author">Dr. Emil Jivishov</p>
+      <p class="about-year">© 2025</p>
+    </div>
+    <button class="btn btn-secondary" onclick="document.getElementById('about-modal').classList.remove('show')">Close</button>
+  </div>
+</div>
+
 <script type="module">
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -1117,6 +1346,7 @@ const state = {
   // Nucleus state
   nucleus: { Z: 6, N: 6 },
   fusionPair: null,
+  fissionProducts: null,
 
   // Quiz state
   currentQuiz: null,
@@ -1305,7 +1535,15 @@ function getElementName(Z) {
 }
 
 function updateNucleusDisplay() {
-  if (state.fusionPair) {
+  if (state.fissionProducts) {
+    // Display both fission products
+    const p1 = state.fissionProducts.product1;
+    const p2 = state.fissionProducts.product2;
+    const label1 = nuclideLabel(p1.Z, p1.N);
+    const label2 = nuclideLabel(p2.Z, p2.N);
+    document.getElementById('nucleus-name').textContent = `${label1} + ${label2}`;
+    document.getElementById('nucleus-details').textContent = `Fission products: ${p1.name} + ${p2.name} + 3 neutrons`;
+  } else if (state.fusionPair) {
     const [a, b] = state.fusionPair;
     const labelA = nuclideLabel(a.Z, a.N);
     const labelB = nuclideLabel(b.Z, b.N);
@@ -1404,39 +1642,76 @@ scene.add(particleGroup);
 // NUCLEUS RENDERING
 // ============================================
 function packSphere(count, radius) {
+  if (count === 0) return [];
+  if (count === 1) return [new THREE.Vector3(0, 0, 0)];
+
   const positions = [];
-  const maxTries = 5000;
-  let tries = 0;
 
-  while (positions.length < count && tries < maxTries) {
-    tries++;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const r = Math.cbrt(Math.random()) * radius;
+  // Use Fibonacci sphere algorithm for uniform distribution
+  const goldenRatio = (1 + Math.sqrt(5)) / 2;
+  const angleIncrement = Math.PI * 2 * goldenRatio;
 
-    const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = r * Math.sin(phi) * Math.sin(theta);
-    const z = r * Math.cos(phi);
+  // Calculate layers for 3D sphere packing
+  const nucleonRadius = 0.25;
+  const effectiveRadius = radius - nucleonRadius;
 
-    const pos = new THREE.Vector3(x, y, z);
+  // Distribute points in concentric shells for larger nuclei
+  if (count <= 4) {
+    // Small nucleus: pack tightly at center
+    if (count === 2) {
+      positions.push(new THREE.Vector3(-nucleonRadius * 0.6, 0, 0));
+      positions.push(new THREE.Vector3(nucleonRadius * 0.6, 0, 0));
+    } else if (count === 3) {
+      for (let i = 0; i < 3; i++) {
+        const angle = (i / 3) * Math.PI * 2;
+        positions.push(new THREE.Vector3(
+          Math.cos(angle) * nucleonRadius * 0.8,
+          Math.sin(angle) * nucleonRadius * 0.8,
+          0
+        ));
+      }
+    } else if (count === 4) {
+      // Tetrahedral arrangement
+      const d = nucleonRadius * 0.9;
+      positions.push(new THREE.Vector3(d, d, d));
+      positions.push(new THREE.Vector3(-d, -d, d));
+      positions.push(new THREE.Vector3(-d, d, -d));
+      positions.push(new THREE.Vector3(d, -d, -d));
+    }
+  } else {
+    // Larger nuclei: use shell-based Fibonacci distribution
+    const shells = Math.ceil(Math.cbrt(count / 4));
+    let placed = 0;
 
-    let valid = true;
-    for (const p of positions) {
-      if (pos.distanceTo(p) < 0.55) {
-        valid = false;
-        break;
+    for (let shell = 0; shell < shells && placed < count; shell++) {
+      const shellRadius = effectiveRadius * (shell + 1) / shells;
+      const shellArea = 4 * Math.PI * shellRadius * shellRadius;
+      const nucleonArea = Math.PI * nucleonRadius * nucleonRadius * 4;
+      let pointsInShell = Math.min(
+        Math.floor(shellArea / nucleonArea),
+        count - placed
+      );
+
+      // Ensure at least some points in inner shells
+      if (shell < shells - 1) {
+        pointsInShell = Math.min(pointsInShell, Math.ceil((count - placed) * 0.4));
+      } else {
+        pointsInShell = count - placed;
+      }
+
+      for (let i = 0; i < pointsInShell; i++) {
+        const y = 1 - (i / (pointsInShell - 1 || 1)) * 2;
+        const radiusAtY = Math.sqrt(1 - y * y);
+        const theta = angleIncrement * (placed + i);
+
+        positions.push(new THREE.Vector3(
+          Math.cos(theta) * radiusAtY * shellRadius,
+          y * shellRadius,
+          Math.sin(theta) * radiusAtY * shellRadius
+        ));
+        placed++;
       }
     }
-
-    if (valid) positions.push(pos);
-  }
-
-  while (positions.length < count) {
-    positions.push(new THREE.Vector3(
-      (Math.random() - 0.5) * radius * 2,
-      (Math.random() - 0.5) * radius * 2,
-      (Math.random() - 0.5) * radius * 2
-    ));
   }
 
   return positions;
@@ -1510,10 +1785,10 @@ function renderNucleus() {
 // ============================================
 // DECAY ANIMATIONS
 // ============================================
-let animationState = { active: false, type: null, progress: 0, particles: [] };
+let animationState = { active: false, type: null, progress: 0, particles: [], fissionFragments: null, phase: 0 };
 
 function startDecayAnimation(type) {
-  animationState = { active: true, type, progress: 0, particles: [] };
+  animationState = { active: true, type, progress: 0, particles: [], fissionFragments: null, phase: 0 };
   playSound('decay');
 
   // Clear existing particles
@@ -1522,19 +1797,52 @@ function startDecayAnimation(type) {
   }
 
   if (type === 'alpha') {
-    // Emit 2 protons and 2 neutrons as alpha particle
+    // Create alpha particle as a spherical group (He-4 nucleus: 2p + 2n)
+    const alphaGroup = new THREE.Group();
+
+    // Tetrahedral arrangement for 4 nucleons
+    const d = 0.18;
+    const positions = [
+      new THREE.Vector3(d, d, d),    // proton 1
+      new THREE.Vector3(-d, -d, d),  // proton 2
+      new THREE.Vector3(-d, d, -d),  // neutron 1
+      new THREE.Vector3(d, -d, -d)   // neutron 2
+    ];
+
+    // Add 2 protons
     for (let i = 0; i < 2; i++) {
       const proton = new THREE.Mesh(particleGeom, protonMaterial.clone());
-      const neutron = new THREE.Mesh(particleGeom, neutronMaterial.clone());
-      proton.position.set(0.1 * i, 0.1 * i, 0);
-      neutron.position.set(-0.1 * i, 0.1 * (i + 1), 0);
-      particleGroup.add(proton);
-      particleGroup.add(neutron);
-      animationState.particles.push(
-        { mesh: proton, velocity: new THREE.Vector3(0.15 + Math.random() * 0.05, 0.05, 0.02) },
-        { mesh: neutron, velocity: new THREE.Vector3(0.14 + Math.random() * 0.05, 0.03, -0.02) }
-      );
+      proton.position.copy(positions[i]);
+      proton.scale.setScalar(0.9);
+      alphaGroup.add(proton);
     }
+
+    // Add 2 neutrons
+    for (let i = 2; i < 4; i++) {
+      const neutron = new THREE.Mesh(particleGeom, neutronMaterial.clone());
+      neutron.position.copy(positions[i]);
+      neutron.scale.setScalar(0.9);
+      alphaGroup.add(neutron);
+    }
+
+    // Add transparent shell around alpha particle
+    const alphaShell = new THREE.Mesh(
+      new THREE.SphereGeometry(0.45, 16, 16),
+      new THREE.MeshStandardMaterial({
+        color: 0xfbbf24,
+        transparent: true,
+        opacity: 0.25,
+        roughness: 0.5
+      })
+    );
+    alphaGroup.add(alphaShell);
+
+    particleGroup.add(alphaGroup);
+    animationState.particles.push({
+      mesh: alphaGroup,
+      velocity: new THREE.Vector3(0.12, 0.04, 0.02),
+      rotationSpeed: new THREE.Vector3(0.02, 0.03, 0.01)
+    });
   } else if (type === 'beta') {
     const electron = new THREE.Mesh(particleGeom, electronMaterial.clone());
     electron.scale.setScalar(0.6);
@@ -1551,6 +1859,18 @@ function startDecayAnimation(type) {
       mesh: gamma,
       velocity: new THREE.Vector3(0.3, 0, 0)
     });
+  } else if (type === 'fission') {
+    // Fission animation: U-235 splits into Ba-141 + Kr-92 + 3n
+    // Phase 0: wobble original nucleus
+    // Phase 1: create fragments and animate separation
+    // Phase 2: release neutrons
+    animationState.phase = 0;
+    animationState.fissionFragments = {
+      barium: null,
+      krypton: null,
+      neutrons: [],
+      originalScale: nucleusGroup.children[0] ? nucleusGroup.children[0].scale.clone() : new THREE.Vector3(1, 1, 1)
+    };
   }
 }
 
@@ -1559,16 +1879,149 @@ function updateAnimation(delta) {
 
   animationState.progress += delta;
 
+  // Handle fission animation separately
+  if (animationState.type === 'fission') {
+    updateFissionAnimation(delta);
+    return;
+  }
+
   for (const p of animationState.particles) {
     p.mesh.position.add(p.velocity);
-    p.mesh.material.opacity = Math.max(0, 1 - animationState.progress / 2);
-    p.mesh.material.transparent = true;
+
+    // Handle rotation for alpha particle group
+    if (p.rotationSpeed) {
+      p.mesh.rotation.x += p.rotationSpeed.x;
+      p.mesh.rotation.y += p.rotationSpeed.y;
+      p.mesh.rotation.z += p.rotationSpeed.z;
+    }
+
+    // Fade out - handle both single meshes and groups
+    const fadeOpacity = Math.max(0, 1 - animationState.progress / 2);
+    if (p.mesh.material) {
+      p.mesh.material.opacity = fadeOpacity;
+      p.mesh.material.transparent = true;
+    } else if (p.mesh.children) {
+      // For groups (like alpha particle), fade all children
+      p.mesh.traverse(child => {
+        if (child.material) {
+          child.material.opacity = fadeOpacity;
+          child.material.transparent = true;
+        }
+      });
+    }
   }
 
   if (animationState.progress > 2.5) {
     animationState.active = false;
     while (particleGroup.children.length) {
       particleGroup.remove(particleGroup.children[0]);
+    }
+  }
+}
+
+function updateFissionAnimation(delta) {
+  const frag = animationState.fissionFragments;
+  const progress = animationState.progress;
+
+  // Phase 0: Wobble/pulse the nucleus (0-1 seconds)
+  if (animationState.phase === 0) {
+    if (nucleusGroup.children[0]) {
+      const wobble = 1 + 0.15 * Math.sin(progress * 15);
+      const stretch = 1 + 0.2 * progress; // Elongate over time
+      nucleusGroup.children[0].scale.set(
+        frag.originalScale.x * stretch,
+        frag.originalScale.y * wobble / stretch,
+        frag.originalScale.z * wobble
+      );
+    }
+
+    if (progress > 1.0) {
+      // Transition to phase 1: create fragments
+      animationState.phase = 1;
+
+      // Hide original nucleus
+      while (nucleusGroup.children.length) {
+        nucleusGroup.remove(nucleusGroup.children[0]);
+      }
+
+      // Create Barium-141 (Z=56, N=85) - larger fragment
+      frag.barium = buildNucleus(56, 85, new THREE.Vector3(0, 0, 0));
+      frag.barium.userData = { targetX: -3.5, velocity: 0 };
+      nucleusGroup.add(frag.barium);
+
+      // Create Krypton-92 (Z=36, N=56) - smaller fragment
+      frag.krypton = buildNucleus(36, 56, new THREE.Vector3(0, 0, 0));
+      frag.krypton.userData = { targetX: 3.5, velocity: 0 };
+      nucleusGroup.add(frag.krypton);
+
+      // Create 3 neutrons
+      for (let i = 0; i < 3; i++) {
+        const neutron = new THREE.Mesh(particleGeom, neutronMaterial.clone());
+        neutron.position.set(0, 0, 0);
+        neutron.scale.setScalar(1.2);
+        const angle = (i / 3) * Math.PI * 2 + Math.PI / 6;
+        neutron.userData = {
+          velocity: new THREE.Vector3(
+            Math.cos(angle) * 0.12,
+            Math.sin(angle) * 0.1 + (Math.random() - 0.5) * 0.05,
+            (Math.random() - 0.5) * 0.08
+          )
+        };
+        frag.neutrons.push(neutron);
+        particleGroup.add(neutron);
+      }
+
+      // Flash effect
+      showToast('💥 FISSION! U-235 → Ba-141 + Kr-92 + 3n + Energy!', 'info');
+    }
+  }
+
+  // Phase 1: Animate fragments separating (1-4 seconds)
+  if (animationState.phase === 1) {
+    const sepProgress = progress - 1.0;
+
+    // Animate barium moving left with easing
+    if (frag.barium) {
+      const easeOut = 1 - Math.pow(1 - Math.min(sepProgress / 2, 1), 3);
+      frag.barium.position.x = -3.5 * easeOut;
+      // Slight rotation for visual interest
+      frag.barium.rotation.y += delta * 0.5;
+    }
+
+    // Animate krypton moving right with easing
+    if (frag.krypton) {
+      const easeOut = 1 - Math.pow(1 - Math.min(sepProgress / 2, 1), 3);
+      frag.krypton.position.x = 3.5 * easeOut;
+      frag.krypton.rotation.y -= delta * 0.7;
+    }
+
+    // Animate neutrons flying outward
+    for (const neutron of frag.neutrons) {
+      if (neutron.userData && neutron.userData.velocity) {
+        neutron.position.add(neutron.userData.velocity);
+        // Slight fade out
+        if (neutron.material) {
+          neutron.material.transparent = true;
+          neutron.material.opacity = Math.max(0.3, 1 - sepProgress / 4);
+        }
+      }
+    }
+
+    // End animation after 4 seconds total
+    if (progress > 4.0) {
+      animationState.active = false;
+
+      // Clean up neutrons
+      while (particleGroup.children.length) {
+        particleGroup.remove(particleGroup.children[0]);
+      }
+
+      // Update state to show both products
+      state.fissionProducts = {
+        product1: { Z: 56, N: 85, name: 'Barium-141' },
+        product2: { Z: 36, N: 56, name: 'Krypton-92' }
+      };
+      updateNucleusDisplay();
     }
   }
 }
@@ -1614,9 +2067,12 @@ function performFission() {
     return false;
   }
 
-  showToast('Fission: U-235 → Ba-141 + Kr-92 + 3n', 'info');
-  state.nucleus = { Z: 56, N: 85 }; // Barium-141
-  renderNucleus();
+  // Clear any previous fission products
+  state.fissionProducts = null;
+
+  // Start the fission animation
+  startDecayAnimation('fission');
+
   return true;
 }
 
@@ -1628,6 +2084,7 @@ function performFusion() {
 
   showToast('Fusion: D + T → He-4 + n + 17.6 MeV', 'info');
   state.fusionPair = null;
+  state.fissionProducts = null;
   state.nucleus = { Z: 2, N: 2 }; // Helium-4
   renderNucleus();
   return true;
@@ -2155,7 +2612,8 @@ function loadLevel(level) {
   // Update action buttons
   updateActionButtons(level);
 
-  // Load appropriate nucleus
+  // Load appropriate nucleus (clear fission products on level change)
+  state.fissionProducts = null;
   if (level === 1) {
     state.nucleus = { Z: 6, N: 6 };
     state.fusionPair = null;
@@ -2187,6 +2645,7 @@ function setupLevelHandlers(level) {
         document.getElementById('proton-value').textContent = Z;
         state.nucleus.Z = Z;
         state.fusionPair = null;
+        state.fissionProducts = null;
         renderNucleus();
       });
     }
@@ -2197,6 +2656,7 @@ function setupLevelHandlers(level) {
         document.getElementById('neutron-value').textContent = N;
         state.nucleus.N = N;
         state.fusionPair = null;
+        state.fissionProducts = null;
         renderNucleus();
       });
     }
@@ -2291,7 +2751,7 @@ function completeLevel(level) {
     continueBtn.textContent = 'View Certificate';
     continueBtn.onclick = () => {
       document.getElementById('level-modal').classList.remove('show');
-      showToast('Congratulations! You completed all levels!', 'success');
+      showCertificate();
     };
   }
 
@@ -2300,6 +2760,18 @@ function completeLevel(level) {
 
   // Save progress
   saveProgress();
+}
+
+function showCertificate() {
+  // Set current date on certificate
+  const date = new Date();
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('cert-date').textContent = date.toLocaleDateString('en-US', options);
+
+  // Show certificate modal
+  document.getElementById('certificate-modal').classList.add('show');
+  playSound('levelUp');
+  showToast('Congratulations! You completed all levels!', 'success');
 }
 
 // ============================================
@@ -2367,6 +2839,7 @@ window.loadPreset = function(name) {
   if (preset) {
     state.nucleus = { ...preset };
     state.fusionPair = null;
+    state.fissionProducts = null;
 
     // Update sliders if they exist
     const protonSlider = document.getElementById('proton-slider');
@@ -2390,6 +2863,7 @@ window.loadIsotopeL2 = function() {
   const [Z, N] = select.value.split(',').map(Number);
   state.nucleus = { Z, N };
   state.fusionPair = null;
+  state.fissionProducts = null;
   renderNucleus();
   playSound('click');
 };
@@ -2452,6 +2926,7 @@ window.showHint3 = function() {
 
 window.loadIsotopeL4 = function() {
   const select = document.getElementById('isotope-select-l4');
+  state.fissionProducts = null;
   if (select.value === 'fission') {
     state.nucleus = { Z: 92, N: 143 };
     state.fusionPair = null;
