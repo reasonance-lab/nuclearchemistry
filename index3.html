@@ -677,6 +677,7 @@ html, body {
   align-items: center;
   gap: 10px;
   max-width: 320px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .toast.success { border-color: var(--accent-green); }
@@ -924,8 +925,13 @@ html, body {
   <!-- Sidebar -->
   <div id="sidebar">
     <div class="sidebar-header">
-      <h1>Nuclear Reactions Lab</h1>
-      <div class="subtitle">Texas TEKS Chemistry - Interactive Learning</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h1>Nuclear Reactions Lab</h1>
+          <div class="subtitle">Texas TEKS Chemistry - Interactive Learning</div>
+        </div>
+        <button onclick="resetProgress()" title="Reset all progress" style="background:transparent; border:1px solid var(--border-color); border-radius:6px; padding:6px 10px; color:var(--text-secondary); cursor:pointer; font-size:0.7rem;">🔄 Reset</button>
+      </div>
     </div>
 
     <div class="stats-bar">
@@ -1063,8 +1069,14 @@ const ELEMENTS = [
 ];
 
 const ELEMENT_NAMES = {
-  1: "Hydrogen", 2: "Helium", 6: "Carbon", 7: "Nitrogen", 8: "Oxygen",
-  27: "Cobalt", 36: "Krypton", 56: "Barium", 82: "Lead", 84: "Polonium", 92: "Uranium"
+  1: "Hydrogen", 2: "Helium", 3: "Lithium", 4: "Beryllium", 5: "Boron",
+  6: "Carbon", 7: "Nitrogen", 8: "Oxygen", 9: "Fluorine", 10: "Neon",
+  11: "Sodium", 12: "Magnesium", 13: "Aluminum", 14: "Silicon", 15: "Phosphorus",
+  16: "Sulfur", 17: "Chlorine", 18: "Argon", 19: "Potassium", 20: "Calcium",
+  26: "Iron", 27: "Cobalt", 28: "Nickel", 29: "Copper", 30: "Zinc",
+  36: "Krypton", 47: "Silver", 53: "Iodine", 55: "Cesium", 56: "Barium",
+  79: "Gold", 80: "Mercury", 82: "Lead", 83: "Bismuth", 84: "Polonium",
+  86: "Radon", 88: "Radium", 90: "Thorium", 92: "Uranium", 94: "Plutonium"
 };
 
 // ============================================
@@ -1174,17 +1186,76 @@ function showToast(message, type = 'info') {
 }
 
 function addXP(amount) {
-  state.xp += amount;
+  state.xp = Math.max(0, state.xp + amount);
   document.getElementById('xp-display').textContent = state.xp;
   if (amount > 0) {
     showToast(`+${amount} XP`, 'xp');
     playSound('xp');
+  } else if (amount < 0) {
+    showToast(`${amount} XP`, 'info');
   }
+  saveProgress();
 }
 
 function updateSafety(delta) {
   state.safety = Math.max(0, Math.min(100, state.safety + delta));
   document.getElementById('safety-display').textContent = state.safety + '%';
+
+  // Visual warning for low safety
+  const safetyEl = document.getElementById('safety-display');
+  if (state.safety <= 30) {
+    safetyEl.style.color = 'var(--accent-red)';
+    if (delta < 0) showToast('⚠️ Safety low! Review carefully before answering.', 'error');
+  } else if (state.safety <= 50) {
+    safetyEl.style.color = 'var(--accent-yellow)';
+  } else {
+    safetyEl.style.color = 'var(--accent-cyan)';
+  }
+  saveProgress();
+}
+
+// ============================================
+// PERSISTENCE (localStorage)
+// ============================================
+function saveProgress() {
+  const data = {
+    xp: state.xp,
+    badges: state.badges,
+    safety: state.safety,
+    unlockedLevels: state.unlockedLevels,
+    completedLevels: state.completedLevels,
+    levelProgress: state.levelProgress
+  };
+  try {
+    localStorage.setItem('nuclearLabProgress', JSON.stringify(data));
+  } catch (e) {
+    // localStorage not available
+  }
+}
+
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem('nuclearLabProgress');
+    if (saved) {
+      const data = JSON.parse(saved);
+      state.xp = data.xp || 0;
+      state.badges = data.badges || [];
+      state.safety = data.safety || 100;
+      state.unlockedLevels = data.unlockedLevels || [1];
+      state.completedLevels = data.completedLevels || [];
+      state.levelProgress = data.levelProgress || state.levelProgress;
+
+      // Update UI
+      document.getElementById('xp-display').textContent = state.xp;
+      document.getElementById('safety-display').textContent = state.safety + '%';
+      updateBadges();
+      updateProgress();
+      return true;
+    }
+  } catch (e) {
+    // localStorage not available
+  }
+  return false;
 }
 
 function updateProgress() {
@@ -1205,12 +1276,25 @@ function nuclideLabel(Z, N) {
   return `${sym}-${A}`;
 }
 
+function getElementName(Z) {
+  return ELEMENT_NAMES[Z] || ELEMENTS[Z] || `Element ${Z}`;
+}
+
 function updateNucleusDisplay() {
-  const { Z, N } = state.nucleus;
-  const A = Z + N;
-  const name = nuclideLabel(Z, N);
-  document.getElementById('nucleus-name').textContent = name;
-  document.getElementById('nucleus-details').textContent = `Z=${Z} · N=${N} · A=${A}`;
+  if (state.fusionPair) {
+    const [a, b] = state.fusionPair;
+    const labelA = nuclideLabel(a.Z, a.N);
+    const labelB = nuclideLabel(b.Z, b.N);
+    document.getElementById('nucleus-name').textContent = `${labelA} + ${labelB}`;
+    document.getElementById('nucleus-details').textContent = `Fusion pair ready`;
+  } else {
+    const { Z, N } = state.nucleus;
+    const A = Z + N;
+    const name = nuclideLabel(Z, N);
+    const elementName = getElementName(Z);
+    document.getElementById('nucleus-name').textContent = name;
+    document.getElementById('nucleus-details').textContent = `${elementName} · Z=${Z} · N=${N} · A=${A}`;
+  }
 }
 
 // ============================================
@@ -2094,6 +2178,22 @@ function setupLevelHandlers(level) {
     }
   }
 
+  // Setup equation input Enter key handlers (Level 3)
+  if (level === 3) {
+    const ansA = document.getElementById('ans-A');
+    const ansZ = document.getElementById('ans-Z');
+    if (ansA) {
+      ansA.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') window.checkEquation();
+      });
+    }
+    if (ansZ) {
+      ansZ.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') window.checkEquation();
+      });
+    }
+  }
+
   // Setup quiz option handlers
   document.querySelectorAll('.quiz-option').forEach(opt => {
     opt.addEventListener('click', () => {
@@ -2173,6 +2273,9 @@ function completeLevel(level) {
 
   // Update tab
   document.querySelector(`.level-tab[data-level="${level}"]`).classList.add('completed');
+
+  // Save progress
+  saveProgress();
 }
 
 // ============================================
@@ -2183,6 +2286,7 @@ window.checkQuiz = function(level) {
   const selected = container.querySelector('.quiz-option.selected');
   const feedbackId = level === 3 ? 'feedback-l3-quiz' : `feedback-l${level}`;
   const feedback = document.getElementById(feedbackId);
+  const checkBtn = document.getElementById(`check-l${level}`);
 
   if (!selected) {
     showToast('Please select an answer first', 'error');
@@ -2207,18 +2311,24 @@ window.checkQuiz = function(level) {
     feedback.textContent = '✓ Correct! Great job!';
     addXP(25);
     playSound('success');
+    checkBtn.disabled = true;
 
     // Mark level complete after short delay
     setTimeout(() => completeLevel(level), 1500);
   } else {
     feedback.className = 'quiz-feedback show incorrect';
-    feedback.textContent = '✗ Not quite. Look at the highlighted correct answer.';
+    feedback.textContent = '✗ Not quite. Try again! Hint: Look at the lesson content above.';
     updateSafety(-5);
     playSound('error');
-  }
 
-  // Disable check button
-  document.getElementById(`check-l${level}`).disabled = true;
+    // Allow retry - reset selection after delay
+    setTimeout(() => {
+      container.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.classList.remove('selected', 'incorrect', 'correct');
+      });
+      feedback.classList.remove('show');
+    }, 2500);
+  }
 };
 
 window.loadPreset = function(name) {
@@ -2444,13 +2554,32 @@ function animate(currentTime) {
 // INITIALIZE
 // ============================================
 function init() {
-  loadLevel(1);
+  const hasProgress = loadProgress();
+
+  // Determine which level to start with
+  const startLevel = hasProgress && state.unlockedLevels.length > 0
+    ? Math.max(...state.unlockedLevels.filter(l => !state.completedLevels.includes(l)), 1)
+    : 1;
+
+  loadLevel(startLevel);
   updateProgress();
   updateBadges();
   animate(performance.now());
 
-  showToast('Welcome to Nuclear Reactions Lab! Start with Level 1.', 'info');
+  if (hasProgress && state.xp > 0) {
+    showToast(`Welcome back! Your progress has been restored. XP: ${state.xp}`, 'success');
+  } else {
+    showToast('Welcome to Nuclear Reactions Lab! Start with Level 1.', 'info');
+  }
 }
+
+// Reset progress function (can be called from console or added to UI)
+window.resetProgress = function() {
+  if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+    localStorage.removeItem('nuclearLabProgress');
+    location.reload();
+  }
+};
 
 init();
 </script>
